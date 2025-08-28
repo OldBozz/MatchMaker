@@ -1,0 +1,33 @@
+﻿@page "/Courts"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib.Data;
+@using MatcMakerLiteAPP.Pages.Dialogs;
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudContainer Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4" Align="Align.Center" GutterBottom="true">Courts</MudText>
+    <MudButton @onclick="OpenAddElementDialog" Variant="Variant.Filled" Color="Color.Primary">
+        Add Club
+    </MudButton>
+    <MudDataGrid T="Court" Items="@(dbcontext.Courts.ToList())" ReadOnly="false" EditMode="DataGridEditMode.Form"
+                 Bordered="true" Dense="true" Hover="true" Striped="true" EditTrigger="DataGridEditTrigger.OnRowClick" SortMode="SortMode.None">
+        <Columns>
+            <PropertyColumn Property="x => x.Name" />
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+@code {
+    private async Task<DialogResult> OpenAddElementDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters();
+        parameters.Add("Element", new Court());
+        parameters.Add("ElementType", "Court");
+
+        var dialog = await DialogService.ShowAsync<AddMatchMakeElementDialog>("Confirm", parameters, options);
+        return await dialog.Result;
+    }
+  }

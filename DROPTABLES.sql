@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS playerteam,playertournament,courttournament,matchplayer,clubplayer,betmatch,playerbets,tournamentbets,teamtournament,matches,courts,tournaments,players,teams,mainevents,clubs;

@@ -1,0 +1,73 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@inject NavigationManager NavigationManager
+@inject Tournament ActiveTournament
+
+<MudTable Items="@ActiveTournament.GetMatchesForCurrentRound()" Dense="true" Hover="true" ReadOnly="false" CanCancelEdit="true"
+          CommitEditTooltip="Apply"
+          RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+          RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="true" ApplyButtonPosition="TableApplyButtonPosition.End" EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.RowClick">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Current round:</MudText>
+        <MudSpacer />
+    </ToolBarContent>
+    <ColGroup>
+        <col style="width:10px;" />
+        <col style="width:150px;" />
+        <col style="width:50px;" />
+        <col style="width:150px;" />
+        <col style="width:50px;" />
+    </ColGroup>
+    <HeaderContent>
+        <MudTh>Court</MudTh>
+        <MudTh>Team1</MudTh>
+        <MudTh>Points</MudTh>
+        <MudTh>Team2</MudTh>
+        <MudTh>Points</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Court">@context.Court</MudTd>
+        <MudTd DataLabel="Team 1">@context.Team1</MudTd>
+        <MudTd DataLabel="Points">@context.Team1Points</MudTd>
+        <MudTd DataLabel="Team2">@context.Team2</MudTd>
+        <MudTd DataLabel="Points">@context.Team2Points</MudTd>
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Team1Points">
+            <MudNumericField @bind-Value="@context.Team1Points" Label="@context.Team1.Name" Required Min="0" MaxLength="2" />
+            </MudTd>
+            <MudTd DataLabel="Points">
+            <MudNumericField @bind-Value="@context.Team2Points" Label="@context.Team2.Name" Required Min="0" MaxLength="2" />
+            </MudTd>
+        </RowEditingTemplate>
+        </MudTable>
+
+
+        @code {
+    private int buteam1points;
+    private int buteam2points;
+
+    private void RowClickEvent(TableRowClickEventArgs<Match> tableRowClickEventArgs)
+    {
+    }
+
+    private string SelectedRowClassFunc(Match match, int rowNumber)
+    {
+        return string.Empty;
+    }
+
+    private void BackupItem(object element)
+    {
+        buteam1points = ((Match)element).Team1Points;
+        buteam2points = ((Match)element).Team2Points;
+    }
+    private void ResetItemToOriginalValues(object element)
+    {
+        ((Match)element).Team1Points = buteam1points;
+        ((Match)element).Team2Points = buteam2points;
+    }
+    private void ItemHasBeenCommitted(object element)
+    {
+    }
+
+
+}

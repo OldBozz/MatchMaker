@@ -1,0 +1,62 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib;
+@using MatchMakerPro.Data;
+@using MatchMakerPro.Pages.Dialogs;
+
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.GeneratingTokens" Class="mr-3 mb-n1" />
+            Generate Tournament Matches
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText Typo="Typo.h6" Class="mr-6" Align="MudBlazor.Align.Center">Algorithm</MudText>
+        <MudRadioGroup T="TournamentGenerator.ALGORITHM" @bind-SelectedOption="@algorithm">
+            <MudRadio T="TournamentGenerator.ALGORITHM" Color="MudBlazor.Color.Primary" Size="Size.Medium" Option="@(TournamentGenerator.ALGORITHM.PLAYERSPLAYSWITHALLOTHERPLAYERS)">Players teams up WITH all other players</MudRadio>
+            <MudRadio T="TournamentGenerator.ALGORITHM" Color="MudBlazor.Color.Primary" Size="Size.Medium" Option="@(TournamentGenerator.ALGORITHM.PLAYERSPLAYSAGAINSTALLOTHERPLAYERS)">Players plays AGAINST all other players</MudRadio>
+        </MudRadioGroup>
+        <MudText Typo="Typo.h6" Class="mr-6" Align="MudBlazor.Align.Center">Ranking</MudText>
+        <MudRadioGroup T="TournamentGenerator.RANKINGUSE" @bind-SelectedOption="@rankinguse">
+            <MudRadio T="TournamentGenerator.RANKINGUSE" Color="MudBlazor.Color.Secondary" Size="Size.Medium" Option="@(TournamentGenerator.RANKINGUSE.NONE)">Don't use ranking</MudRadio>
+            <MudRadio T="TournamentGenerator.RANKINGUSE" Color="MudBlazor.Color.Secondary" Size="Size.Medium" Option="@(TournamentGenerator.RANKINGUSE.BALANCED)">Use ranking to generate EVEN matches</MudRadio>
+            <MudRadio T="TournamentGenerator.RANKINGUSE" Color="MudBlazor.Color.Secondary" Size="Size.Medium" Option="@(TournamentGenerator.RANKINGUSE.UNBALANCED)">Use ranking to generate UNEVEN matches</MudRadio>
+        </MudRadioGroup>
+        <MudText Typo="Typo.h6" Class="mr-6" Align="MudBlazor.Align.Center">Shuffle</MudText>
+        <MudCheckBox @bind-Checked="@shuffle" Color="MudBlazor.Color.Secondary" Label="Use players in random order" CheckedIcon="@Icons.Material.Filled.ShuffleOn" UncheckedIcon="@Icons.Material.Filled.Shuffle"></MudCheckBox>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="MudBlazor.Color.Error" OnClick="OnCancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Success" OnClick="OnOK">OK</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public Tournament tournament { get; set; }
+
+    TournamentGenerator.ALGORITHM algorithm { get; set; } = TournamentGenerator.ALGORITHM.PLAYERSPLAYSWITHALLOTHERPLAYERS;
+    TournamentGenerator.RANKINGUSE rankinguse { get; set; } = TournamentGenerator.RANKINGUSE.BALANCED;
+    bool shuffle { get; set; } = true;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+    private void OnCancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void OnOK()
+    {
+        tournament.algorithm = algorithm;
+        tournament.rankinguse = rankinguse;
+        tournament.shuffle = shuffle;
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

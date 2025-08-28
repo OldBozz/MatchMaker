@@ -1,0 +1,14 @@
+dotnet tool install --global dotnet-ef
+tool update --global dotnet-ef
+cd C:\data\Dropbox\projects\visualstudio\auga\MatchMaker\MatchMakerPro\
+dotnet add package Microsoft.EntityFrameworkCore.Design
+
+dotnet ef  --project "c:\data\Dropbox\projects\visualstudio\auga\MatchMaker\MatchMakerPro" database update
+dotnet ef  database update --context MatchMakerDbContext
+dotnet ef migrations add MatchmakerInitial --context MatchMakerDbContext --output-dir Data/Migrations
+--project WebApplication1.Migrations
+Server=(localdb)\\mssqllocaldb;Database=aspnet-MatchMakerPro-311bc780-c195-4157-a138-f4559485d151;Trusted_Connection=True;MultipleActiveResultSets=true
+
+publish pwd =AESXE2rHvzYlQ7Qq5iqjqhpfgG7LbyoibG6MguLXlmTfkuueDwLrkC0ddqNQ
+
+C:\data\Dropbox\projects\visualstudio\auga\MatchMaker\MatchMakerPro\Migrations\20230528183153_MySQLMatchamkerInitial.Designer.cs

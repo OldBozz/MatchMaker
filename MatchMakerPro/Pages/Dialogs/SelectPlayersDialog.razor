@@ -1,0 +1,54 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerPro.Data;
+@inject MatchMakerDbContext dbcontext
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Select players
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="form">
+            <MudSelect T="Player" Label="Players" MultiSelection="true" HelperText="Select players" @bind-SelectedValues="selectedplayers">
+                @foreach (Player player in tournament.Players)
+                {
+                    <MudSelectItem T="Player" Value="@player" />
+                }
+            </MudSelect>
+
+        </MudForm>
+   
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Success" OnClick="OnOK">OK</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public Tournament tournament { get; set; }
+    [Parameter] public Team team { get; set; }
+    MudForm form;
+    private IEnumerable<Player> selectedplayers { get; set; } = new List<Player>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        selectedplayers = team.Players.ToList();
+
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void OnOK()
+    {
+        team.Players.Clear();
+        team.Players.AddRange(selectedplayers);
+        //dbcontext.SaveChanges();
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

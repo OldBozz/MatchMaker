@@ -1,0 +1,132 @@
+﻿@page "/Tournaments"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib;
+@using MatchMakerPro.Data;
+@using Microsoft.EntityFrameworkCore;
+@using static MatchMakerLib.MatchMakerModel.Team;
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+@inject Club activeclub
+
+<MudContainer Class="mt-4">
+    <MudDataGrid T="Tournament" Items="tournaments" MultiSelection="true" ReadOnly="true" Loading="@working"
+                  SelectedItemsChanged="@SelectedItemsChanged"
+                 Bordered="true" Dense="true" Hover="true" Striped="true" Groupable="false" QuickFilter="_quickFilter" SortMode="SortMode.Multiple">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4" Class="mr-6">Tournaments</MudText>
+            <MudButton @onclick="OnAddTournament" Variant="Variant.Filled" Color="MudBlazor.Color.Primary">Add</MudButton>
+            <MudButton @onclick="OnExport" Variant="Variant.Filled" Class="ml-5" Color="MudBlazor.Color.Secondary">Export</MudButton>
+            <MudButton @onclick="OnImport" Variant="Variant.Filled" Class="ml-5" Color="MudBlazor.Color.Tertiary">Import</MudButton>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <Columns>
+          <SelectColumn T="Tournament" />
+          <PropertyColumn CellStyle="max-width: 15ch" Property="x => x.Name" Title="Name" />
+            <PropertyColumn CellStyle="max-width: 10ch" Property="x => x.Startdate" Title="Start Date" />
+            <PropertyColumn CellStyle="max-width: 10ch" Property="x => x.Finishdate" Title="Finish Date" />
+            <PropertyColumn CellStyle="max-width: 3ch" Property="x => x.PointsToWin" Title="Points to Win" Sortable="false" />
+            <PropertyColumn CellStyle="max-width: 5ch" Property="x => x.State" Title="Status" Sortable="false" />
+            <TemplateColumn CellStyle="max-width: 1ch" CellClass="d-flex justfy-end" Sortable="false" Filterable="false" IsEditable="false">
+                <CellTemplate>
+                    <MudStack Row>
+                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" Disabled="GetDeleteButtonDisabled(context.Item)" OnClick="() => Remove(context.Item)" />
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Tournament" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    List<Tournament> tournaments = new();
+    List<Tournament> selectedtournaments = new();
+    private string _searchString;
+    bool working = false;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        UpdateList();
+    }
+    private void UpdateList()
+    {
+        tournaments = dbcontext.Tournaments.ToList();
+        tournaments.Sort((x, y) => x.Name.CompareTo(y.Name));
+
+    }
+    private bool GetDeleteButtonDisabled(Tournament tournament)
+    {
+        dbcontext.Entry(tournament).Collection("Matches").Load();
+        return tournament.GetFinishedMatchesCount() > 0;
+    }
+    private Func<Tournament, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    };
+    private async void Remove(Tournament tournament)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            (MarkupString)$"Are you sure you want to delete " + tournament.Name + "? <br /> All matches in tournament will also be deleted!",
+            yesText: "Delete!", cancelText: "Cancel");
+        if (result != null)
+        {
+
+            dbcontext.Tournaments.Remove(tournament);
+            dbcontext.SaveChanges();
+            UpdateList();
+            StateHasChanged();
+        }
+    }
+    void SelectedItemsChanged(HashSet<Tournament> items)
+    {
+        selectedtournaments.Clear();
+        selectedtournaments.AddRange(items);
+    }
+
+    //void CommittedItemChanges(Tournament tournament)
+    //{
+    //    dbcontext.SaveChanges();
+    //}
+    private void OnAddTournament()
+    {
+        NavigationManager.NavigateTo("/CreateTournament");
+    }
+    private async void OnExport()
+    {
+        working = true;
+        StateHasChanged();
+        foreach (Tournament tournament in selectedtournaments)
+        {
+            dbcontext.Entry(tournament).Collection("Matches").Load();
+            dbcontext.Entry(tournament).Collection("Teams").Load();
+            dbcontext.Entry(tournament).Collection("Players").Load();
+            dbcontext.Entry(tournament).Collection("Courts").Load();
+            dbcontext.Teams.Include(t => t.Players).Load();
+            string filename = string.Format("{0}.json", tournament.Name);
+            string filepath = string.Format("Data/{0}/Exports", activeclub);
+
+            await Task.Run(() => File.WriteAllText(Path.Combine(filepath, filename), tournament.ToJson()));
+        }
+        working = false;
+        StateHasChanged();
+    }
+    private async void OnImport()
+    {
+        //string jsonstring = File.ReadAllText(filename));
+        //return Tournament.FromJson(jsonstring);
+    }
+
+
+}

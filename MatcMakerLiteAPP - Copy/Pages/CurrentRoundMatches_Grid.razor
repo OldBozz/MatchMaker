@@ -1,0 +1,94 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@inject NavigationManager NavigationManager
+@inject Tournament ActiveTournament
+@inject IDialogService DialogService
+
+<MudDataGrid T="Match" Items="@ActiveTournament.GetMatchesForCurrentRound()" ReadOnly="false" EditMode="DataGridEditMode.Form"
+             StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges"
+             Bordered="true" Dense="true" Hover="true" Striped="true" EditTrigger="DataGridEditTrigger.OnRowClick" SortMode="SortMode.None">
+    <Columns>
+        <PropertyColumn Property="x => x.Court"  IsEditable="false" />
+        <PropertyColumn Property="x => x.Team1" IsEditable="false" CellStyleFunc="@_cellStyleFuncTeam1" /> />
+        <PropertyColumn Property="x => x.Team1Points" Title="Points">
+            <EditTemplate>
+                <MudNumericField @bind-Value="@context.Item.Team1Points" Min="1" MaxLength="2" Label="@context.Item.Team1.Name" />
+            </EditTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Team2" IsEditable="false" CellStyleFunc="@_cellStyleFuncTeam2" />
+        <PropertyColumn Property="x => x.Team2Points" Title="Points">
+            <EditTemplate>
+                <MudNumericField @bind-Value="@context.Item.Team2Points" Min="1" MaxLength="2" Label="@context.Item.Team2.Name" />
+            </EditTemplate>
+        </PropertyColumn>
+        @*     <EditTemplate>
+                <MudSelect @bind-Value="context.Item.Position" Required RequiredError="You must select a Position!!!" Margin="@Margin.Dense">
+                    <MudSelectItem Value="0">zero</MudSelectItem>
+                    <MudSelectItem Value="1">one</MudSelectItem>
+                    <MudSelectItem Value="17">seventeen</MudSelectItem>
+                </MudSelect>
+            </EditTemplate>
+            </PropertyColumn>
+           <PropertyColumn Property="x => x.Molar" Title="Molar mass" />
+            <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+            </CellTemplate>
+            </TemplateColumn>
+        *@
+        </Columns>
+        </MudDataGrid>
+
+@code {
+
+    private int buteam1points;
+    private int buteam2points;
+
+    private Func<Match, string> _cellStyleFuncTeam1 => x =>
+    {
+        string style = "";
+        if(x.WinningTeam() == x.Team1)
+            style += "background-color:#8CED8C";
+
+        return style;
+    };
+    private Func<Match, string> _cellStyleFuncTeam2 => x =>
+    {
+        string style = "";
+        if (x.WinningTeam() == x.Team2)
+            style += "background-color:#8CED8C";
+
+        return style;
+    };
+    private void RowClickEvent(TableRowClickEventArgs<Match> tableRowClickEventArgs)
+    {
+    }
+
+    private string SelectedRowClassFunc(Match match, int rowNumber)
+    {
+        return string.Empty;
+    }
+
+
+    void StartedEditingItem(Match match)
+    {
+        buteam1points = match.Team1Points;
+        buteam2points = match.Team2Points;
+    }
+    void CanceledEditingItem(Match match)
+    {
+        match.Team1Points = buteam1points;
+        match.Team2Points = buteam2points;
+    }
+
+    async void CommittedItemChanges(Match match)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+              "Info",
+              "CommittedItemChanges",
+              yesText: "Delete!", cancelText: "Cancel");
+        //state = result == null ? "Canceled" : "Deleted!";
+        StateHasChanged();
+        
+    }
+
+}

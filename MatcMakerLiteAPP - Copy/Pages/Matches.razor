@@ -1,0 +1,64 @@
+﻿@page "/Matches"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib.Data;
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudContainer Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4" Align="Align.Center" GutterBottom="true">Matches</MudText>
+
+    <MudDataGrid T="Match" Items="@(dbcontext.Matches.ToList())" ReadOnly="false" EditMode="DataGridEditMode.Form"
+                 Bordered="true" Dense="true" Hover="true" Striped="true" EditTrigger="DataGridEditTrigger.OnRowClick" SortMode="SortMode.None">
+        <Columns>
+            <PropertyColumn Property="x => x.Name" Title="Displayname" />
+            <PropertyColumn Property="x => x.Team1" />
+            <PropertyColumn Property="x => x.Team1Points" />
+            <PropertyColumn Property="x => x.Team2" />
+            <PropertyColumn Property="x => x.Team2Points" />
+            @*                    <PropertyColumn Property="x => x.Team1" IsEditable="false" />
+            <PropertyColumn Property="x => x.Team1Points" Title="Points">
+            <EditTemplate>
+            <MudNumericField @bind-Value="@context.Item.Team1Points" Min="1" MaxLength="2" Label="@context.Item.Team1.Name" />
+            </EditTemplate>
+            </PropertyColumn>
+            <PropertyColumn Property="x => x.Team2" IsEditable="false" CellStyleFunc="@_cellStyleFuncTeam2" />
+            <PropertyColumn Property="x => x.Team2Points" Title="Points">
+            <EditTemplate>
+            <MudNumericField @bind-Value="@context.Item.Team2Points" Min="1" MaxLength="2" Label="@context.Item.Team2.Name" />
+            </EditTemplate>
+            </PropertyColumn>
+            *@
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+@code {
+    //List<Player> players =new();
+
+    //protected override async Task OnInitializedAsync() => players = dbcontext.Players.ToList();
+
+    List<Player> getPlayers()
+    {
+        return dbcontext.Players.ToList();
+    }
+    //private async void OpenDialog()
+    //{
+    //    var options = new DialogOptions { CloseOnEscapeKey = true };
+    //    var dialog = await DialogService.ShowAsync<PlayerEditDialog>("Edit Player", options);
+    //    await dialog.Result;
+    //    StateHasChanged();
+    //}
+
+    void CommittedItemChanges(Match match)
+    {
+        //bool? result = await DialogService.ShowMessageBox(
+        //      "Info",
+        //      "CommittedItemChanges",
+        //      yesText: "Delete!", cancelText: "Cancel");
+        ////state = result == null ? "Canceled" : "Deleted!";
+
+        //StateHasChanged();
+
+    }
+}

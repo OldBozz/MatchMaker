@@ -1,0 +1,132 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerPro.Data;
+@inject MatchMakerDbContext dbcontext
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Save" Class="mr-3 mb-n1" />
+            Edit Tournament
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="form" ReadOnly="false">
+            <MudTextField @bind-Value="@name" Label="Name" />
+            <MudSelect T="Club" Label="Club" MultiSelection="false" HelperText="Select club"  @bind-Value="selectedclub">
+                @foreach (Club c in dbcontext.Clubs)
+                {
+                    <MudSelectItem T="Club" Value="@c" />
+                }
+            </MudSelect>
+            <MudSelect T="Mainevent" Label="Event" MultiSelection="false" HelperText="Select event"  @bind-Value="selectedmainevent">
+                @foreach (Mainevent e in dbcontext.Mainevents)
+                {
+                    <MudSelectItem T="Mainevent" Value="@e" />
+                }
+            </MudSelect>
+            <MudTextField T="DateTime?" Label="Start Time" Format="s" InputType="InputType.DateTimeLocal" @bind-Value="starttime" />
+            <MudTextField T="DateTime?" Label="End Time" Format="s" InputType="InputType.DateTimeLocal" @bind-Value="endtime" />
+            <MudSelect T="Player" Label="Players" MultiSelection="true" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))" SelectAll="true" SelectAllText="Select all players" HelperText="Select 4 or more players" SelectedValues="selectedplayers" SelectedValuesChanged="OnPlayersChanged">
+                @foreach (Player player in allplayers)
+                {
+                    <MudSelectItem T="Player" Value="@player" />
+                }
+            </MudSelect>
+            <MudSelect T="Court" Label="Courts" MultiSelection="true" SelectAll="true" SelectAllText="Select all courts" HelperText="Select 1 or more courts" SelectedValues="selectedcourts" SelectedValuesChanged="OnCourtsChanged">
+                @foreach (Court c in allcourts)
+                {
+                    <MudSelectItem T="Court" Value="@c" />
+                }
+            </MudSelect>
+            <MudNumericField @bind-Value="pointstowin" Min="1" MaxLength="2" Label="Points to win" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Success" OnClick="SaveTournament">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public Tournament Tournament { get; set; }
+    private string name = "";
+    private List<Player> allplayers = new List<Player>();
+    private List<Court> allcourts = new List<Court>();
+    MudForm? form;
+    private IEnumerable<Player> selectedplayers { get; set; } = new List<Player>();
+    private IEnumerable<Court> selectedcourts { get; set; } = new List<Court>();
+    private Club? selectedclub;
+    private Mainevent? selectedmainevent;
+    private DateTime? starttime = DateTime.Today;
+    private DateTime? endtime = DateTime.Today;
+    private int pointstowin = 15;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        name = Tournament.Name;
+        allplayers = dbcontext.Players.ToList();
+        allplayers.Sort((x, y) => x.Displayname.CompareTo(y.Displayname));
+        allcourts = dbcontext.Courts.ToList();
+        allcourts.Sort((x, y) => x.Name.CompareTo(y.Name));
+
+        selectedmainevent = Tournament.Mainevent;
+        selectedclub = Tournament.Club;
+        pointstowin = Tournament.PointsToWin;
+        foreach (Player p in Tournament.Players)
+        {
+            selectedplayers = selectedplayers.Append(p);
+        }
+        foreach (Court c in Tournament.Courts)
+        {
+            selectedcourts = selectedcourts.Append(c);
+        }
+        starttime = Tournament.Startdate;
+        endtime = Tournament.Finishdate;
+    }
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{selectedValues.Count} player{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
+
+    }
+    void OnPlayersChanged(IEnumerable<Player> players)
+    {
+        selectedplayers = new List<Player>();
+        foreach (Player p in players)
+        {
+            selectedplayers = selectedplayers.Append(p);
+        }
+    }
+    void OnCourtsChanged(IEnumerable<Court> courts)
+    {
+        selectedcourts = new List<Court>();
+        foreach (Court c in courts)
+        {
+            selectedcourts = selectedcourts.Append(c);
+        }
+    }
+
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void SaveTournament()
+    {
+        Tournament.Name = name;
+        Tournament.Club = selectedclub; 
+        Tournament.Mainevent = selectedmainevent;
+        Tournament.PointsToWin= pointstowin;
+        Tournament.Players.Clear();
+        Tournament.Players.AddRange(selectedplayers.ToList());
+        Tournament.Courts.Clear();
+        Tournament.Courts.AddRange(selectedcourts.ToList());
+        Tournament.Startdate = starttime;
+        Tournament.Finishdate = endtime;
+;/*         endtime = Tournament.Finishdate;
+ */
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

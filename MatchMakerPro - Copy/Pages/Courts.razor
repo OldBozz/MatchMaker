@@ -1,0 +1,98 @@
+﻿@page "/Courts"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerPro.Data;
+@using Microsoft.EntityFrameworkCore;
+@using MatchMakerPro.Pages.Dialogs;
+
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudContainer Class="mt-4">
+    <MudDataGrid T="Court" Items="courts" ReadOnly="false" EditMode="DataGridEditMode.Cell"
+                 CommittedItemChanges="CommittedItemChanges"
+                 Bordered="true" Dense="true" Hover="true" Striped="true" Filterable="true" Groupable="false" QuickFilter="_quickFilter" SortMode="SortMode.Single">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4" Class="mr-6">Clubs</MudText>
+            <MudButton @onclick="AddCourt" Variant="Variant.Filled" Color="MudBlazor.Color.Primary">Add</MudButton>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn CellStyle="max-width: 15ch" Property="x => x.Name" Title="Name" />
+            <TemplateColumn CellStyle="max-width: 1ch" CellClass="d-flex justfy-end" Sortable="false" Filterable="false" IsEditable="false">
+                <CellTemplate>
+                    <MudStack Row>
+                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" OnClick="() => Remove(context.Item)" />
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    List<Court> courts = new();
+    private string _searchString;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        UpdateList();
+    }
+    private void UpdateList()
+    {
+        courts = dbcontext.Courts.ToList();
+        courts.Sort((x, y) => x.Name.CompareTo(y.Name));
+    }
+
+    private Func<Court, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    };
+    async void AddCourt()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters();
+        Court newcourt = new Court();
+        parameters.Add("Element", newcourt);
+        parameters.Add("ElementType", "Court");
+        var dialog = await DialogService.ShowAsync<AddMatchMakerElementDialog>("Confirm", parameters, options);
+        DialogResult result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            dbcontext.Courts.Add(newcourt);
+            dbcontext.SaveChanges();
+            UpdateList();
+            StateHasChanged();
+        }
+    }
+
+    private async void Remove(Court court)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to delete " + court.Name + "?",
+            yesText: "Delete!", cancelText: "Cancel");
+        if (result != null)
+        {
+
+            dbcontext.Courts.Remove(court);
+            dbcontext.SaveChanges();
+            UpdateList();
+            StateHasChanged();
+        }
+    }
+
+
+    void CommittedItemChanges(Court court)
+    {
+        courts = dbcontext.Courts.ToList();
+        courts.Sort((x, y) => x.Name.CompareTo(y.Name));
+        dbcontext.SaveChanges();
+    }
+}

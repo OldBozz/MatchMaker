@@ -1,0 +1,1072 @@
+{
+  "$id": "1",
+  "playDate": "2023-06-21T00:00:00",
+  "startdate": "2023-06-21T16:01:32.572367",
+  "finishdate": "2023-06-21T17:29:43.668253",
+  "club": {
+    "$id": "2",
+    "players": {
+      "$id": "3",
+      "$values": []
+    },
+    "id": 1,
+    "name": "EVK",
+    "state": 0
+  },
+  "mainevent": null,
+  "matches": {
+    "$id": "4",
+    "$values": [
+      {
+        "$id": "5",
+        "finishdate": "2023-06-23T13:27:16.914842",
+        "round": 1,
+        "court": {
+          "$id": "6",
+          "id": 1,
+          "name": "1",
+          "state": 0
+        },
+        "team1": {
+          "$id": "7",
+          "players": {
+            "$id": "8",
+            "$values": [
+              {
+                "$id": "9",
+                "displayname": "Bosse",
+                "dob": null,
+                "rank": 33,
+                "identity": null,
+                "id": 1,
+                "name": "",
+                "state": 0
+              },
+              {
+                "$id": "10",
+                "displayname": "Tim",
+                "dob": null,
+                "rank": 45,
+                "identity": null,
+                "id": 8,
+                "name": "",
+                "state": 0
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 39,
+          "id": 41,
+          "name": "Tim/Bosse",
+          "state": 0
+        },
+        "team2": {
+          "$id": "11",
+          "players": {
+            "$id": "12",
+            "$values": [
+              {
+                "$id": "13",
+                "displayname": "Kyller",
+                "dob": null,
+                "rank": 43,
+                "identity": null,
+                "id": 5,
+                "name": "",
+                "state": 0
+              },
+              {
+                "$id": "14",
+                "displayname": "Stefano",
+                "dob": null,
+                "rank": 65,
+                "identity": null,
+                "id": 12,
+                "name": "",
+                "state": 0
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 54,
+          "id": 8,
+          "name": "Stefano/Kyller",
+          "state": 0
+        },
+        "team1Points": 5,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "15",
+          "$values": []
+        },
+        "id": 1035,
+        "name": "Tim/Bosse vs. Curtis/Kyller",
+        "state": 2
+      },
+      {
+        "$id": "16",
+        "finishdate": "2023-06-23T13:27:16.914846",
+        "round": 1,
+        "court": {
+          "$id": "17",
+          "id": 2,
+          "name": "2",
+          "state": 0
+        },
+        "team1": {
+          "$id": "18",
+          "players": {
+            "$id": "19",
+            "$values": [
+              {
+                "$id": "20",
+                "displayname": "Bruno",
+                "dob": null,
+                "rank": 41,
+                "identity": null,
+                "id": 13,
+                "name": "",
+                "state": 0
+              },
+              {
+                "$id": "21",
+                "displayname": "Jakob",
+                "dob": null,
+                "rank": 58,
+                "identity": null,
+                "id": 18,
+                "name": "",
+                "state": 0
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 49,
+          "id": 28,
+          "name": "Bruno/Jakob",
+          "state": 0
+        },
+        "team2": {
+          "$id": "22",
+          "players": {
+            "$id": "23",
+            "$values": [
+              {
+                "$id": "24",
+                "displayname": "Asser",
+                "dob": null,
+                "rank": 41,
+                "identity": null,
+                "id": 17,
+                "name": "",
+                "state": 0
+              },
+              {
+                "$id": "25",
+                "displayname": "R\u00F8dsg\u00E5rd",
+                "dob": null,
+                "rank": 57,
+                "identity": null,
+                "id": 20,
+                "name": "Henrik R\u00F8dsg\u00E5rd",
+                "state": 0
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 49,
+          "id": 1546,
+          "name": "",
+          "state": 0
+        },
+        "team1Points": 5,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "26",
+          "$values": []
+        },
+        "id": 1036,
+        "name": "Bruno/Jakob vs. ",
+        "state": 2
+      },
+      {
+        "$id": "27",
+        "finishdate": "2023-06-23T13:27:16.914846",
+        "round": 1,
+        "court": {
+          "$id": "28",
+          "id": 3,
+          "name": "3",
+          "state": 0
+        },
+        "team1": {
+          "$id": "29",
+          "players": {
+            "$id": "30",
+            "$values": [
+              {
+                "$id": "31",
+                "displayname": "Henrik",
+                "dob": null,
+                "rank": 64,
+                "identity": null,
+                "id": 7,
+                "name": "",
+                "state": 0
+              },
+              {
+                "$id": "32",
+                "displayname": "John",
+                "dob": null,
+                "rank": 39,
+                "identity": null,
+                "id": 10,
+                "name": "",
+                "state": 0
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 51,
+          "id": 6,
+          "name": "John/Henrik",
+          "state": 0
+        },
+        "team2": {
+          "$id": "33",
+          "players": {
+            "$id": "34",
+            "$values": [
+              {
+                "$id": "35",
+                "displayname": "Mads",
+                "dob": null,
+                "rank": 83,
+                "identity": null,
+                "id": 4,
+                "name": "",
+                "state": 0
+              },
+              {
+                "$id": "36",
+                "displayname": "Kim",
+                "dob": null,
+                "rank": 36,
+                "identity": null,
+                "id": 9,
+                "name": "",
+                "state": 0
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 59,
+          "id": 129,
+          "name": "Mads/Kim",
+          "state": 0
+        },
+        "team1Points": 8,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "37",
+          "$values": []
+        },
+        "id": 1037,
+        "name": "John/Henrik vs. Mads/Kim",
+        "state": 2
+      },
+      {
+        "$id": "38",
+        "finishdate": "2023-06-23T13:27:16.914846",
+        "round": 2,
+        "court": {
+          "$ref": "6"
+        },
+        "team1": {
+          "$id": "39",
+          "players": {
+            "$id": "40",
+            "$values": [
+              {
+                "$ref": "10"
+              },
+              {
+                "$ref": "32"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 42,
+          "id": 14,
+          "name": "Tim/John",
+          "state": 0
+        },
+        "team2": {
+          "$id": "41",
+          "players": {
+            "$id": "42",
+            "$values": [
+              {
+                "$ref": "13"
+              },
+              {
+                "$ref": "24"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 42,
+          "id": 62,
+          "name": "Asser/Kyller",
+          "state": 0
+        },
+        "team1Points": 12,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "43",
+          "$values": []
+        },
+        "id": 1038,
+        "name": "Tim/John vs. Asser/Kyller",
+        "state": 2
+      },
+      {
+        "$id": "44",
+        "finishdate": "2023-06-23T13:27:16.914847",
+        "round": 2,
+        "court": {
+          "$ref": "17"
+        },
+        "team1": {
+          "$id": "45",
+          "players": {
+            "$id": "46",
+            "$values": [
+              {
+                "$ref": "20"
+              },
+              {
+                "$ref": "25"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 49,
+          "id": 1577,
+          "name": "",
+          "state": 0
+        },
+        "team2": {
+          "$id": "47",
+          "players": {
+            "$id": "48",
+            "$values": [
+              {
+                "$ref": "31"
+              },
+              {
+                "$id": "49",
+                "displayname": "Curtis",
+                "dob": null,
+                "rank": 35,
+                "identity": null,
+                "id": 11,
+                "name": "",
+                "state": 0
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 49,
+          "id": 78,
+          "name": "Curtis/Henrik",
+          "state": 0
+        },
+        "team1Points": 4,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "50",
+          "$values": []
+        },
+        "id": 1039,
+        "name": " vs. Curtis/Henrik",
+        "state": 2
+      },
+      {
+        "$id": "51",
+        "finishdate": "2023-06-23T13:27:16.914847",
+        "round": 2,
+        "court": {
+          "$ref": "28"
+        },
+        "team1": {
+          "$id": "52",
+          "players": {
+            "$id": "53",
+            "$values": [
+              {
+                "$ref": "9"
+              },
+              {
+                "$ref": "36"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 34,
+          "id": 60,
+          "name": "Kim/Bosse",
+          "state": 0
+        },
+        "team2": {
+          "$id": "54",
+          "players": {
+            "$id": "55",
+            "$values": [
+              {
+                "$ref": "35"
+              },
+              {
+                "$ref": "21"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 70,
+          "id": 45,
+          "name": "Mads/Jakob",
+          "state": 0
+        },
+        "team1Points": 5,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "56",
+          "$values": []
+        },
+        "id": 1040,
+        "name": "Kim/Bosse vs. Mads/Jakob",
+        "state": 2
+      },
+      {
+        "$id": "57",
+        "finishdate": "2023-06-23T13:27:16.914847",
+        "round": 3,
+        "court": {
+          "$ref": "6"
+        },
+        "team1": {
+          "$id": "58",
+          "players": {
+            "$id": "59",
+            "$values": [
+              {
+                "$ref": "9"
+              },
+              {
+                "$ref": "13"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 38,
+          "id": 25,
+          "name": "Bosse/Kyller",
+          "state": 0
+        },
+        "team2": {
+          "$id": "60",
+          "players": {
+            "$id": "61",
+            "$values": [
+              {
+                "$ref": "49"
+              },
+              {
+                "$ref": "20"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 38,
+          "id": 38,
+          "name": "Bruno/Curtis",
+          "state": 0
+        },
+        "team1Points": 16,
+        "team2Points": 14,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "62",
+          "$values": []
+        },
+        "id": 1041,
+        "name": "Bosse/Kyller vs. Bruno/Curtis",
+        "state": 2
+      },
+      {
+        "$id": "63",
+        "finishdate": "2023-06-23T13:27:16.914847",
+        "round": 3,
+        "court": {
+          "$ref": "17"
+        },
+        "team1": {
+          "$id": "64",
+          "players": {
+            "$id": "65",
+            "$values": [
+              {
+                "$ref": "10"
+              },
+              {
+                "$ref": "36"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 40,
+          "id": 5,
+          "name": "Tim/Kim",
+          "state": 0
+        },
+        "team2": {
+          "$id": "66",
+          "players": {
+            "$id": "67",
+            "$values": [
+              {
+                "$ref": "32"
+              },
+              {
+                "$ref": "24"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 40,
+          "id": 181,
+          "name": "John/Asser",
+          "state": 0
+        },
+        "team1Points": 15,
+        "team2Points": 7,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "68",
+          "$values": []
+        },
+        "id": 1042,
+        "name": "Tim/Kim vs. John/Asser",
+        "state": 2
+      },
+      {
+        "$id": "69",
+        "finishdate": "2023-06-23T13:27:16.914847",
+        "round": 3,
+        "court": {
+          "$ref": "28"
+        },
+        "team1": {
+          "$id": "70",
+          "players": {
+            "$id": "71",
+            "$values": [
+              {
+                "$ref": "31"
+              },
+              {
+                "$ref": "21"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 61,
+          "id": 108,
+          "name": "Henrik/Jakob",
+          "state": 0
+        },
+        "team2": {
+          "$id": "72",
+          "players": {
+            "$id": "73",
+            "$values": [
+              {
+                "$ref": "35"
+              },
+              {
+                "$ref": "25"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 70,
+          "id": 1584,
+          "name": "",
+          "state": 0
+        },
+        "team1Points": 13,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "74",
+          "$values": []
+        },
+        "id": 1043,
+        "name": "Henrik/Jakob vs. ",
+        "state": 2
+      },
+      {
+        "$id": "75",
+        "finishdate": "2023-06-23T13:27:16.914849",
+        "round": 4,
+        "court": {
+          "$ref": "6"
+        },
+        "team1": {
+          "$id": "76",
+          "players": {
+            "$id": "77",
+            "$values": [
+              {
+                "$ref": "31"
+              },
+              {
+                "$ref": "36"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 50,
+          "id": 15,
+          "name": "Kim/Henrik",
+          "state": 0
+        },
+        "team2": {
+          "$id": "78",
+          "players": {
+            "$id": "79",
+            "$values": [
+              {
+                "$ref": "13"
+              },
+              {
+                "$ref": "21"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 50,
+          "id": 18,
+          "name": "Kyller/Jakob",
+          "state": 0
+        },
+        "team1Points": 15,
+        "team2Points": 12,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "80",
+          "$values": []
+        },
+        "id": 1044,
+        "name": "Kim/Henrik vs. Kyller/Jakob",
+        "state": 2
+      },
+      {
+        "$id": "81",
+        "finishdate": "2023-06-23T13:27:16.914849",
+        "round": 4,
+        "court": {
+          "$ref": "17"
+        },
+        "team1": {
+          "$id": "82",
+          "players": {
+            "$id": "83",
+            "$values": [
+              {
+                "$ref": "9"
+              },
+              {
+                "$ref": "24"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 37,
+          "id": 7,
+          "name": "Bosse/Asser",
+          "state": 0
+        },
+        "team2": {
+          "$id": "84",
+          "players": {
+            "$id": "85",
+            "$values": [
+              {
+                "$ref": "32"
+              },
+              {
+                "$ref": "49"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 37,
+          "id": 94,
+          "name": "Curtis/John",
+          "state": 0
+        },
+        "team1Points": 6,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "86",
+          "$values": []
+        },
+        "id": 1045,
+        "name": "Bosse/Asser vs. Curtis/John",
+        "state": 2
+      },
+      {
+        "$id": "87",
+        "finishdate": "2023-06-23T13:27:16.914849",
+        "round": 4,
+        "court": {
+          "$ref": "28"
+        },
+        "team1": {
+          "$id": "88",
+          "players": {
+            "$id": "89",
+            "$values": [
+              {
+                "$ref": "10"
+              },
+              {
+                "$ref": "25"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 51,
+          "id": 1607,
+          "name": "",
+          "state": 0
+        },
+        "team2": {
+          "$id": "90",
+          "players": {
+            "$id": "91",
+            "$values": [
+              {
+                "$ref": "35"
+              },
+              {
+                "$ref": "20"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 62,
+          "id": 1,
+          "name": "Mads/Bruno",
+          "state": 0
+        },
+        "team1Points": 15,
+        "team2Points": 8,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "92",
+          "$values": []
+        },
+        "id": 1046,
+        "name": " vs. Mads/Bruno",
+        "state": 2
+      },
+      {
+        "$id": "93",
+        "finishdate": "2023-06-23T13:27:16.914849",
+        "round": 5,
+        "court": {
+          "$ref": "6"
+        },
+        "team1": {
+          "$id": "94",
+          "players": {
+            "$id": "95",
+            "$values": [
+              {
+                "$ref": "20"
+              },
+              {
+                "$ref": "24"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 41,
+          "id": 90,
+          "name": "Bruno/Asser",
+          "state": 0
+        },
+        "team2": {
+          "$id": "96",
+          "players": {
+            "$id": "97",
+            "$values": [
+              {
+                "$ref": "13"
+              },
+              {
+                "$ref": "32"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 41,
+          "id": 70,
+          "name": "John/Kyller",
+          "state": 0
+        },
+        "team1Points": 11,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "98",
+          "$values": []
+        },
+        "id": 1047,
+        "name": "Bruno/Asser vs. John/Kyller",
+        "state": 2
+      },
+      {
+        "$id": "99",
+        "finishdate": "2023-06-23T13:27:16.914849",
+        "round": 5,
+        "court": {
+          "$ref": "17"
+        },
+        "team1": {
+          "$id": "100",
+          "players": {
+            "$id": "101",
+            "$values": [
+              {
+                "$ref": "49"
+              },
+              {
+                "$ref": "21"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 46,
+          "id": 102,
+          "name": "Curtis/Jakob",
+          "state": 0
+        },
+        "team2": {
+          "$id": "102",
+          "players": {
+            "$id": "103",
+            "$values": [
+              {
+                "$ref": "36"
+              },
+              {
+                "$ref": "25"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 46,
+          "id": 1667,
+          "name": "",
+          "state": 0
+        },
+        "team1Points": 15,
+        "team2Points": 7,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "104",
+          "$values": []
+        },
+        "id": 1048,
+        "name": "Curtis/Jakob vs. ",
+        "state": 2
+      },
+      {
+        "$id": "105",
+        "finishdate": "2023-06-23T13:27:16.91485",
+        "round": 5,
+        "court": {
+          "$ref": "28"
+        },
+        "team1": {
+          "$id": "106",
+          "players": {
+            "$id": "107",
+            "$values": [
+              {
+                "$ref": "35"
+              },
+              {
+                "$ref": "10"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 64,
+          "id": 119,
+          "name": "Mads/Tim",
+          "state": 0
+        },
+        "team2": {
+          "$id": "108",
+          "players": {
+            "$id": "109",
+            "$values": [
+              {
+                "$ref": "9"
+              },
+              {
+                "$ref": "31"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 48,
+          "id": 52,
+          "name": "Henrik/Bosse",
+          "state": 0
+        },
+        "team1Points": 12,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "110",
+          "$values": []
+        },
+        "id": 1049,
+        "name": "Mads/Tim vs. Henrik/Bosse",
+        "state": 2
+      },
+      {
+        "$id": "111",
+        "finishdate": "2023-06-23T13:27:16.91485",
+        "round": 6,
+        "court": {
+          "$ref": "6"
+        },
+        "team1": {
+          "$ref": "47"
+        },
+        "team2": {
+          "$id": "112",
+          "players": {
+            "$id": "113",
+            "$values": [
+              {
+                "$ref": "35"
+              },
+              {
+                "$ref": "13"
+              }
+            ]
+          },
+          "hasPlayed": false,
+          "rank": 63,
+          "id": 53,
+          "name": "Mads/Kyller",
+          "state": 0
+        },
+        "team1Points": 8,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "114",
+          "$values": []
+        },
+        "id": 1050,
+        "name": "John/Asser vs. Kim/John",
+        "state": 2
+      }
+    ]
+  },
+  "currentRound": 5,
+  "totalRounds": 1,
+  "pointsToWin": 15,
+  "id": 30,
+  "name": "EVK Sommer Beach 21 jun. 2023 12 Players",
+  "state": 2
+}

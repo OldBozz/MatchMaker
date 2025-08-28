@@ -1,0 +1,240 @@
+﻿@page "/PlayersChart"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerPro.Data;
+@using Microsoft.EntityFrameworkCore;
+@using static MatchMakerLib.MatchMakerModel.Team;
+@using MatchMakerPro.Pages.Dialogs;
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+<MudPaper Width="100%" Elevation="0">
+    <MudCard>
+
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">Player Results</MudText>
+                <MudSelect T="Player" Label="Players" MultiSelection="false" SelectAll="false"
+                           HelperText="Select 1 player" Value="selectedplayer" ValueChanged="OnSelectedPlayerChanged">
+                    @foreach (Player player in allplayers)
+                    {
+                        <MudSelectItem T="Player" Value="@player" />
+                    }
+                </MudSelect>
+                <MudRadioGroup @bind-SelectedOption="against">
+                    <MudRadio Option="true" Color="MudBlazor.Color.Primary" Dense="true">Against</MudRadio>
+                    <MudRadio Option="false" Color="MudBlazor.Color.Secondary" Dense="false">With</MudRadio>
+                </MudRadioGroup>
+            </CardHeaderContent>
+        </MudCardHeader>
+        @if (loading)
+        {
+            <MudCardContent>
+                <MudProgressCircular Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Large" Indeterminate="true" />
+            </MudCardContent>
+
+        }
+        else
+        {
+            if (apexchartpointsselectedagainst.Count() > 0)
+            {
+                <MudCardContent>
+                    @if (against)
+                    {
+                        <ApexChart TItem="ApexChartPoint"
+                                   Title="Results against"
+                                   Options=options
+                                   Height="500">
+                            <ApexPointSeries TItem="ApexChartPoint"
+                                             Items="apexchartpointsselectedagainst"
+                                             Name="Wins"
+                                             SeriesType="SeriesType.Bar"
+                                             XValue="@(e => e.XValue)"
+                                             YValue="@(e => e.YValue)"
+                                             OrderByDescending="e=>e.X"
+                                             Color="#00ff00" />
+                            <ApexPointSeries TItem="ApexChartPoint"
+                                             Items="apexchartpointsselectedagainst"
+                                             Name="Defeats"
+                                             SeriesType="SeriesType.Bar"
+                                             XValue="@(e => e.XValue)"
+                                             YValue="@(e => e.YValue2)"
+                                             OrderByDescending="e=>e.X"
+                                             Color="#ff0000" />
+                        </ApexChart>
+                    }
+                    else
+                    {
+                        <ApexChart TItem="ApexChartPoint"
+                                   Title="Results with"
+                                   Options=options
+                                   Height="500">
+                            <ApexPointSeries TItem="ApexChartPoint"
+                                             Items="apexchartpointsselectedwith"
+                                             Name="Wins"
+                                             SeriesType="SeriesType.Bar"
+                                             XValue="@(e => e.XValue)"
+                                             YValue="@(e => e.YValue)"
+                                             OrderByDescending="e=>e.X"
+                                             Color="#00ff00" />
+                            <ApexPointSeries TItem="ApexChartPoint"
+                                             Items="apexchartpointsselectedwith"
+                                             Name="Defeats"
+                                             SeriesType="SeriesType.Bar"
+                                             XValue="@(e => e.XValue)"
+                                             YValue="@(e => e.YValue2)"
+                                             OrderByDescending="e=>e.X"
+                                             Color="#ff0000" />
+                        </ApexChart>
+                    }
+                    @*<MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>*@
+                </MudCardContent>
+            }
+
+        }
+    </MudCard>
+</MudPaper>
+@code {
+    bool loading = false;
+    private List<Player> allplayers = new List<Player>();
+    private Player? selectedplayer { get; set; }
+    List<Match> matchlist = new();
+    Filter filter = new();
+    bool against { get; set; } = true;
+
+    //public List<ChartSeries> Series = new List<ChartSeries>();
+    //public string[] XAxisLabels = { };
+    //private ApexChartSeries apexchartpointsallwins = new();
+    //private ApexChartSeries apexchartpointsalllosses = new();
+    private List<ApexChartPoint> apexchartpointsselectedagainst = new();
+    private List<ApexChartPoint> apexchartpointsselectedwith = new();
+    //ApexChartSeries cs = new();
+    List<ApexChartPoint> points = new();
+    string name = "";
+    private ApexChartOptions<ApexChartPoint> options;
+
+
+    protected override void OnInitialized()
+    {
+        options = new ApexChartOptions<ApexChartPoint>
+            {
+                PlotOptions = new PlotOptions
+                {
+                    Bar = new PlotOptionsBar
+                    {
+                        Horizontal = true
+                    }
+                }
+            };
+
+
+    }
+    protected override void OnParametersSet()
+    {
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            allplayers = dbcontext.Players.ToList();
+            UpdateData();
+
+        }
+    }
+    void OnSelectedPlayerChanged(Player player)
+    {
+        selectedplayer = player;
+        UpdateData();
+    }
+
+    void OnPlayersClose()
+    {
+        UpdateData();
+
+    }
+    async void OnEditFilters()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters();
+        parameters.Add("filter", filter);
+
+        var dialog = await DialogService.ShowAsync<EditFilterDialog>
+            ("Edit filters", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            UpdateData();
+        }
+
+    }
+    //private void RefreshData()
+    //{
+    //    loading = true;
+    //    StateHasChanged();
+    //    apexchartpointsselectedwins.Clear();
+    //    apexchartpointsselectedlosses.Clear();
+    //    foreach (Player player in selectedplayers)
+    //    {
+    //        @foreach (ApexChartSeries cs in apexchartseriesall)
+    //        {
+    //            if (player.Displayname.Equals(cs.Name))
+    //            {
+    //                apexchartseriesselected.Add(cs);
+    //                break;
+    //            }
+    //        }
+    //    }
+    //    loading = false;
+    //}
+
+    private void UpdateData()
+    {
+        if (selectedplayer != null)
+        {
+            loading = true;
+            StateHasChanged();
+            apexchartpointsselectedagainst.Clear();
+            apexchartpointsselectedwith.Clear();
+            foreach (Player opponent in allplayers)
+            {
+                if (selectedplayer == opponent)
+                    continue;
+                int winsagainst = 0;
+                int lossesagainst = 0;
+                int winswith = 0;
+                int losseswith = 0;
+                //playerranks.Add(rank);
+                Statistics.GetResulsForPlayerAgainstAndWithPlayer(dbcontext, filter, selectedplayer, opponent, ref winsagainst, ref lossesagainst, ref winswith, ref losseswith);
+                if (winsagainst + lossesagainst > 0)
+                {
+                    ApexChartPoint againstpoint = new();
+                    againstpoint.XValue = opponent.Displayname;
+                    againstpoint.YValue = (decimal)winsagainst;
+                    againstpoint.YValue2 = (decimal)lossesagainst;
+                    apexchartpointsselectedagainst.Add(againstpoint);
+                }
+                if (winswith + losseswith > 0)
+                {
+                    ApexChartPoint withpoint = new();
+                    withpoint.XValue = opponent.Displayname;
+                    withpoint.YValue = (decimal)winswith;
+                    withpoint.YValue2 = (decimal)losseswith;
+                    apexchartpointsselectedwith.Add(withpoint);
+                    //ApexChartPoint losspoint = new();
+                    //winpoint.XValue = opponent.Displayname;
+                    //winpoint.YValue = (decimal)losses;
+                    //apexchartpointsselectedlosses.Add(losspoint);
+                }
+            }
+
+            loading = false;
+            StateHasChanged();
+        }
+    }
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{selectedValues.Count} player{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
+
+    }
+
+}

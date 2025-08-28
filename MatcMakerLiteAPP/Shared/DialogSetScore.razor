@@ -1,0 +1,27 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+<MudDialog>
+    <DialogContent>
+        <MudNumericField @bind-Value="@match.Team1Points" Label="Team1 points" Min="0" />
+        <MudNumericField @bind-Value="@team2points" Label="Team2 points" Min="0" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Match match { get; set; }
+    private int team1points;
+    private int team2points;
+
+    
+
+    void Submit()
+    {
+        //match.Team1Points = team1points;
+        match.Team2Points = team2points;
+        MudDialog.Close(DialogResult.Ok(true));
+    } 
+    void Cancel() => MudDialog.Cancel();
+}

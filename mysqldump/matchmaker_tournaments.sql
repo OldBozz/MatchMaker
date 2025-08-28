@@ -1,0 +1,64 @@
+-- MySQL dump 10.13  Distrib 8.0.17, for Win64 (x86_64)
+--
+-- Host: mysql-auga-northeurope.mysql.database.azure.com    Database: matchmaker
+-- ------------------------------------------------------
+-- Server version	8.0.32
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `tournaments`
+--
+
+DROP TABLE IF EXISTS `tournaments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tournaments` (
+  `Id` int NOT NULL AUTO_INCREMENT,
+  `Startdate` datetime(6) DEFAULT NULL,
+  `Finishdate` datetime(6) DEFAULT NULL,
+  `MaineventId` int DEFAULT NULL,
+  `ClubId` int DEFAULT NULL,
+  `PlayDate` datetime(6) NOT NULL,
+  `CurrentRound` int NOT NULL,
+  `TotalRounds` int NOT NULL,
+  `PointsToWin` int NOT NULL,
+  `Name` longtext NOT NULL,
+  `State` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_Tournaments_ClubId` (`ClubId`),
+  KEY `IX_Tournaments_MaineventId` (`MaineventId`),
+  CONSTRAINT `FK_Tournaments_Clubs_ClubId` FOREIGN KEY (`ClubId`) REFERENCES `clubs` (`Id`),
+  CONSTRAINT `FK_Tournaments_Mainevents_MaineventId` FOREIGN KEY (`MaineventId`) REFERENCES `mainevents` (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tournaments`
+--
+
+LOCK TABLES `tournaments` WRITE;
+/*!40000 ALTER TABLE `tournaments` DISABLE KEYS */;
+INSERT INTO `tournaments` VALUES (3,'2023-05-31 18:00:59.483348','2023-05-31 20:09:37.272057',1,1,'2023-06-05 00:00:00.000000',1,10,15,'EVK Sommer Beach 31 maj 2023',2),(13,'2023-06-07 18:00:50.234866','2023-06-07 20:00:48.491679',1,1,'2023-06-07 00:00:00.000000',1,10,15,'EVK Sommer Beach 7 jun. 2023',2),(15,'2023-06-10 12:36:04.776174','2023-06-10 16:36:18.832242',3,1,'2023-06-08 00:00:00.000000',1,15,15,'EVK Melby Beach Cup 10 jun. 2023',2),(21,'2023-06-14 15:59:15.512265','2023-06-14 21:52:49.897052',1,1,'2023-06-13 00:00:00.000000',7,1,15,'EVK Sommer Beach 14 jun. 2023',2),(30,'2023-06-21 18:00:06.659510','2023-06-21 20:00:26.545992',1,1,'2023-06-21 00:00:00.000000',5,1,15,'EVK Sommer Beach 21 jun. 2023',2),(31,'2023-06-28 18:07:29.334648','2023-06-28 19:50:12.619798',1,1,'2023-06-28 00:00:00.000000',7,1,15,'EVK Sommer Beach 28 Jun 2023',2),(32,'2023-07-05 21:05:32.433810','2023-07-05 21:09:11.920592',1,1,'2023-07-04 00:00:00.000000',7,1,15,'EVK Sommer Beach 5 Jul 2023',2),(33,'2022-08-10 13:41:14.452045','2022-09-21 15:47:54.939229',1,1,'2023-08-10 00:00:00.000000',27,1,15,'King of Frederiksberg Beach History',2),(34,'2023-07-12 16:08:27.119395','2023-07-12 17:41:12.462198',1,1,'2023-07-12 00:00:00.000000',12,1,15,'EVK Sommer Beach 12 Jul 2023',2),(35,'2023-07-19 16:13:28.911469','2023-07-19 17:45:55.407627',1,1,'2023-07-19 00:00:00.000000',5,1,15,'EVK Sommer Beach 19 Jul 2023',2),(37,'2023-07-26 15:55:00.670458','2023-07-26 17:38:11.185608',1,1,'2023-07-26 00:00:00.000000',7,1,15,'EVK Sommer Beach 26 Jul 2023',2);
+/*!40000 ALTER TABLE `tournaments` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2023-07-27 14:15:13

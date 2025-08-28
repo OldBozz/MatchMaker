@@ -1,0 +1,16 @@
+﻿@page "/tournamenttext"
+@using MatchMakerLib.MatchMakerModel;
+@inject Tournament ActiveTournament
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+<MudPaper Height="400px" Width="100%">
+    <MudContainer Fixed="true">
+        <MudPaper Height="400px" Width="100%" Square="true" Class="mud-theme-primary">
+            @ActiveTournament.ToString();
+        </MudPaper>
+    </MudContainer>
+</MudPaper>
+@code {
+
+}

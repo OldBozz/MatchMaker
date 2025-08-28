@@ -1,0 +1,70 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib;
+@using MatchMakerPro.Data;
+@using MatchMakerPro.Pages.Dialogs;
+
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.EditCalendar" Class="mr-3 mb-n1" />
+            Edit Filters
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="form">
+            <MudDatePicker Label="Start date" Date="@filter.Startdate" ShowWeekNumbers="true" AutoClose="true" DateChanged="OnStartDateTimeChanged" />
+            <MudDatePicker Label="End date" Date="@filter.Enddate" ShowWeekNumbers="true" AutoClose="true" DateChanged="OnEndDateTimeChanged" />
+            <MudSelect T="Mainevent" Label="Main event" MultiSelection="true" HelperText="Select events" SelectedValues="filter.Events" SelectedValuesChanged="OnSelectedEventsChanged">
+                @foreach (Mainevent e in dbcontext.Mainevents)
+                {
+                    <MudSelectItem T="Mainevent" Value="@e" />
+                }
+            </MudSelect>
+            <MudNumericField Label="Max matches per player" Value="@filter.MaxMatches" Min="1" Max="100" />
+        </MudForm>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="MudBlazor.Color.Error" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Success" OnClick="MatchOK">OK</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public Filter filter{ get; set; }
+
+    MudForm form;
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+    private void OnStartDateTimeChanged(DateTime? d)
+    {
+        filter.Startdate = d.Value;
+    }
+    private void OnEndDateTimeChanged(DateTime? d)
+    {
+        filter.Enddate = d.Value;
+    }
+
+    private void OnSelectedEventsChanged(IEnumerable<Mainevent> eventlist)
+    {
+    }
+    private void OnMaxMatchChanged(int i)
+    {
+        filter.MaxMatches = i;
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void MatchOK()
+    {
+        MudDialog.Close(DialogResult.Ok(filter));
+    }
+}

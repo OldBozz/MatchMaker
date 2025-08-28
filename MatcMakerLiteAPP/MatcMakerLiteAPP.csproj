@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+	<TargetFramework>net7.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<UserSecretsId>aspnet-MatcMakerLiteAPP-b0cafb68-af7b-47ea-93b5-c2cf6272cdfd</UserSecretsId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>8602</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>8602</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<Compile Remove="Areas\**" />
+	<Compile Remove="Data\**" />
+	<Content Remove="Areas\**" />
+	<Content Remove="Data\**" />
+	<EmbeddedResource Remove="Areas\**" />
+	<EmbeddedResource Remove="Data\**" />
+	<None Remove="Areas\**" />
+	<None Remove="Data\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<Content Remove="Shared\DialogSetScore.razor" />
+	<Content Remove="Shared\LoginDisplay.razor" />
+	<Content Remove="wwwroot\css\MatchMakerDbContext.cs" />
+  
+  
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Remove="matchmakerlite.db" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.2" />
+	<PackageReference Include="Azure.Identity" Version="1.9.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.5" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.5" />
+	<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.5" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.5" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.5" />
+	<PackageReference Include="MudBlazor" Version="6.3.0" />
+	<PackageReference Include="MudBlazor.ThemeManager" Version="1.0.8" />
+	<PackageReference Include="MySql.Data" Version="8.0.33" />
+	<PackageReference Include="MySql.EntityFrameworkCore" Version="7.0.2" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<Folder Include="wwwroot\img\" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\MatchMakerLib\MatchMakerLib.csproj" />
+  </ItemGroup>
+
+</Project>

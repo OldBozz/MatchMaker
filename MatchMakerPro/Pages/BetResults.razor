@@ -1,0 +1,382 @@
+﻿@page "/Betresults"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib.MatchMakerModel.Bet
+@using MatchMakerPro.Data;
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+<style>
+    .selected {
+        background-color: #1E88E5 !important;
+    }
+
+    .selected > td {5
+        color: white !important;
+    }
+
+    .selected > td .mud-input {
+        color: white !important;
+    }
+
+    .winner {
+        background-color:green !important;
+    }
+
+        .winner > td {
+            color: white !important;
+        }
+
+            .winner > td .mud-input {
+                color: white !important;
+            }
+
+    .loser {
+        background-color: red !important;
+    }
+
+        .loser > td {
+        color: white !important;
+    }
+
+            .loser > td .mud-input {
+            color: white !important;
+        }
+
+</style>
+
+<MudContainer Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4" Align="MudBlazor.Align.Center" GutterBottom="true">Betting Results</MudText>
+    @if (loading)
+    {
+        <MudCardContent>
+            <MudProgressCircular Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Large" Indeterminate="true" />
+        </MudCardContent>
+
+    }
+    else
+    {
+
+        <MudPaper Width="100%" Elevation="25">
+            <MudText Typo="Typo.h5" Class="mb-4" Align="MudBlazor.Align.Left" GutterBottom="true">Tournament</MudText>
+            <MudSelect T="Tournament" Label="Tournament" MultiSelection="false" Dense="true" HelperText="Select a ready tournament" Value="ActiveTournament" ValueChanged="@TournamentChanged">
+                @foreach (Tournament t in tournamentlist)
+                {
+                    <MudSelectItem T="Tournament" Value="@t" />
+                }
+            </MudSelect>
+        </MudPaper>
+        <div class="d-flex flex-grow-1 gap-4">
+            <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Width="30%" Elevation="0">
+                <MudPaper Width="100%" Elevation="20">
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h5" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary">Punter Rank</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudPaper Width="100%" Elevation="2">
+                                <MudCard Elevation="0" Class="rounded-lg pb-4">
+                                    <MudCardContent>
+                                        <MudTable T="PunterResult" Items="@punterresults" RowClass="cursor-pointer" @ref="mudTable" Hover="true" Breakpoint="Breakpoint.Sm" RowClassFunc="@SelectedRowClassFunc" OnRowClick="RowClickEvent">
+                                                <HeaderContent>
+                                                <MudTh>Punter</MudTh>
+                                                <MudTh>Correct</MudTh>
+                                                <MudTh>Wrong</MudTh>
+                                            </HeaderContent>
+                                            <RowTemplate>
+                                                <MudTd DataLabel="Punter">@context.Player</MudTd>
+                                                <MudTd DataLabel="Correct">@context.CorrectBets</MudTd>
+                                                <MudTd DataLabel="Wrong">@context.WrongBets</MudTd>
+                                            </RowTemplate>
+                                        </MudTable>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudPaper>
+                        </MudCardContent>
+                    </MudCard>
+                </MudPaper>
+            </MudPaper>
+            <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Width="70%" Elevation="0">
+                <MudCard Elevation="25" Class="rounded-lg pb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary">Matches</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable T="MatchBetResult" Items="@selectedmatchbetresults" Hover="true" Breakpoint="Breakpoint.Sm" RowClassFunc="@MatchColorFunc">
+                            <HeaderContent>
+                                <MudTh>Bet Result</MudTh>
+                                <MudTh>Team1</MudTh>
+                                <MudTh>Team2</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Bet">@context.Bet.Winner</MudTd>
+                                <MudTd DataLabel="Team1"  >@context.Match.Team1</MudTd>
+                                <MudTd DataLabel="Team2">@context.Match.Team2</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudPaper>
+        </div>
+
+    }
+</MudContainer>
+@code {
+    public class PunterResult
+    {
+        public PunterResult(Player p)
+        {
+            Player = p;   
+        }
+        public Player? Player { get; set; }
+        public int CorrectBets { get; set; } = 0;
+        public int WrongBets { get; set; } = 0;
+        public List<MatchBetResult> MatchBetResults = new();
+
+    }
+    public class MatchBetResult
+    {
+        public MatchBetResult(PlayerBet bet)
+        {
+            Bet = bet;
+            Player = bet.Player;
+            Match = bet.Match;
+            Correct = bet.Winner == bet.Match.WinningTeam();
+        }
+        public PlayerBet? Bet { get; set; }
+        public Player? Player { get; set; }
+        public Match? Match { get; set; }
+        public bool Correct { get; set; }
+        public string GetResultStr()
+        {
+            return Correct ? "Correct" : "Wrong";
+        }
+
+    }
+
+    [Parameter] public int tournamentid { get; set; }
+    private MudTable<PunterResult> mudTable;
+    private Tournament? ActiveTournament;
+    private List<Tournament> tournamentlist = new();
+    bool loading = true;
+    private List<Player> allplayers = new List<Player>();
+    private Player? selectedplayer { get; set; }
+    // public List<Match> tournamentmatches = new();
+    public List<PlayerBet> playerbets = new();
+    public List<PunterResult> punterresults = new();
+    public List<MatchBetResult> selectedmatchbetresults = new();
+    private int selectedRowNumber = -1;
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        loading = true;
+        await base.SetParametersAsync(parameters);
+        loading = false;
+    }
+
+    protected override void OnInitialized()
+    {
+
+    }
+
+    void TournamentChanged(Tournament tournament)
+    {
+        loading = true;
+        StateHasChanged();
+        ActiveTournament = tournament;
+        dbcontext.Entry(ActiveTournament).Collection("Matches").Load();
+        dbcontext.Entry(ActiveTournament).Collection("Teams").Load();
+        dbcontext.Entry(ActiveTournament).Collection("Players").Load();
+        // dbcontext.Entry(ActiveTournament).Collection("Courts").Load();
+
+        // tournamentmatches.Clear();
+        // foreach (Match m in ActiveTournament.Matches)
+        // {
+        //     if (m.Tournament == ActiveTournament)
+        //     {
+        //         tournamentmatches.Add(m);
+        //         continue;
+        //     }
+        // }
+        //dbcontext.Tournaments.Find(tournament.Id);
+        CalculatePunterResults();
+
+        loading = false;
+        StateHasChanged();
+    }
+    void CalculatePunterResults()
+    {
+        punterresults.Clear();
+        foreach (Player player in allplayers)
+        {
+            PunterResult? result = null;
+
+            foreach (PlayerBet bet in playerbets)
+            {
+                if (bet.Tournament == ActiveTournament && bet.Player == player)
+                {
+                    if (result == null)
+                    {
+                        result = new PunterResult(bet.Player);
+                    }
+                    if (bet.Winner != null && bet.Match  != null && bet.Match.WinningTeam() != null)
+                    {
+                        if (bet.Winner == bet.Match.WinningTeam())
+                        {
+                            result.CorrectBets++;
+                            result.MatchBetResults.Add(new MatchBetResult(bet));
+                        }
+                        else
+                        {
+                            result.WrongBets++;
+                            result.MatchBetResults.Add(new MatchBetResult(bet));
+                        }
+                    } 
+                }
+            }
+            if(result != null && result.WrongBets+result.CorrectBets > 0)
+                punterresults.Add(result);
+        }
+        punterresults = punterresults.OrderByDescending(x => x.CorrectBets).ToList();
+        // SelectedRowClassFunc(punterresults.First(), 0);
+    }
+    void PlayerChanged(Player player)
+    {
+        loading = true;
+        StateHasChanged();
+        selectedplayer = player;
+        foreach (PunterResult pr in punterresults)
+        {
+            if (pr.Player == selectedplayer)
+            {
+                selectedmatchbetresults = pr.MatchBetResults;
+            }
+        }
+
+        UpdateData();
+        loading = false;
+        StateHasChanged();
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            loading = true;
+            StateHasChanged();
+
+            allplayers = dbcontext.Players.ToList();
+            playerbets = dbcontext.PlayerBets.ToList();
+
+            List<Tournament> bettingtournamentlist = new();
+
+            foreach (Tournament t in dbcontext.Tournaments.ToList())
+            {
+                bettingtournamentlist.Add(t);
+
+                // foreach (PlayerBet p in dbcontext.PlayerBets.ToList())
+                // {
+                //     if (p.Tournament == t)
+                //     {
+                //         bettingtournamentlist.Add(t);
+                //         break;
+                //     }
+                // }
+            }
+            foreach (Tournament t in bettingtournamentlist)
+            {
+                if (t.Id == tournamentid)
+                {
+                    ActiveTournament = t;
+                    break;
+                }
+                if (t.State == MatchMakerElement.ElementStatus.RUNNING || t.State == MatchMakerElement.ElementStatus.FINISHED)
+                {
+                    tournamentlist.Add(t);
+                }
+                if (ActiveTournament == null || t.Startdate > ActiveTournament.Startdate)
+                {
+                    ActiveTournament = t;
+                }
+            }
+            if (ActiveTournament != null)
+                TournamentChanged(ActiveTournament);
+            loading = false;
+            StateHasChanged();
+            UpdateData();
+
+        }
+    }
+    private void RowClickEvent(TableRowClickEventArgs<PunterResult> row)
+    {
+        PlayerChanged(row.Item.Player);
+    }
+
+    private string SelectedRowClassFunc(PunterResult result, int rowNumber)
+    {
+        if (selectedRowNumber == rowNumber)
+        {
+            selectedRowNumber = -1;
+            return string.Empty;
+        }
+        else if (mudTable.SelectedItem != null && mudTable.SelectedItem.Equals(result))
+        {
+            selectedRowNumber = rowNumber;
+            return "selected";
+        }
+        else
+        {
+            return string.Empty;
+        }
+    }
+    private string MatchColorFunc(MatchBetResult result, int rowNumber)
+    {
+        // if(result.Match.)
+        // if (selectedRowNumber == rowNumber)
+        // {
+        //     selectedRowNumber = -1;
+        //     return string.Empty;
+        // }
+        // else if (mudTable.SelectedItem != null && mudTable.SelectedItem.Equals(result))
+        // {
+        //     selectedRowNumber = rowNumber;
+        //     return "selected";
+        // }
+        // else
+        if (result.Correct)
+        {
+            return "winner";
+        }
+        else
+            return "loser";
+    }
+
+    private void UpdateData()
+    {
+        loading = true;
+        StateHasChanged();
+        loading = false;
+        StateHasChanged();
+    }
+    void RowClicked()
+    {
+        // cell clicked logic
+    }
+    void RowCellClicked(PlayerBet bet, Team team)
+    {
+        bet.Winner = team;
+    }
+    // MudBlazor.Color CellColor(MatchBetResult result, Team team)
+    // {
+    //     if (bet.Winner == null)
+    //         return MudBlazor.Color.Transparent;
+    //     else if (bet.Winner == team)
+    //         return MudBlazor.Color.Success;
+    //     else
+    //         return MudBlazor.Color.Error;
+    // }
+
+}

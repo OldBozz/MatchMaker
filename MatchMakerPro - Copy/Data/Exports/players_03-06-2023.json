@@ -1,0 +1,185 @@
+{
+  "$id": "1",
+  "$values": [
+    {
+      "$id": "2",
+      "displayname": "Bosse",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 1,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "3",
+      "displayname": "Flemming",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 2,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "4",
+      "displayname": "Nana",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 3,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "5",
+      "displayname": "Mads",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 4,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "6",
+      "displayname": "Kyller",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 5,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "7",
+      "displayname": "Peter",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 6,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "8",
+      "displayname": "Henrik",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 7,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "9",
+      "displayname": "Tim",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 8,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "10",
+      "displayname": "Kim",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 9,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "11",
+      "displayname": "John",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 10,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "12",
+      "displayname": "Curtis",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 11,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "13",
+      "displayname": "Stefano",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 12,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "14",
+      "displayname": "Bruno",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 13,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "15",
+      "displayname": "Niels",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 14,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "16",
+      "displayname": "Caroline",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 15,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "17",
+      "displayname": "Antonio",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 16,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "18",
+      "displayname": "Asser",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 17,
+      "name": "",
+      "state": 0
+    },
+    {
+      "$id": "19",
+      "displayname": "Jakob",
+      "dob": null,
+      "rank": 0,
+      "identity": null,
+      "id": 18,
+      "name": "",
+      "state": 0
+    }
+  ]
+}

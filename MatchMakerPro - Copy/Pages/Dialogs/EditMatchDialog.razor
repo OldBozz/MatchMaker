@@ -1,0 +1,162 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib;
+@using MatchMakerPro.Data;
+@using MatchMakerPro.Pages.Dialogs;
+
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.EditCalendar" Class="mr-3 mb-n1" />
+            Edit Match
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="form">
+            <MudNumericField @bind-Value="@round" Min="1" MaxLength="2" Label="Round" />
+            <MudSelect T="Court" Label="Court" MultiSelection="false" HelperText="Select 1 court" @bind-Value="@court">
+                @foreach (Court c in tournament.Courts)
+                {
+                    <MudSelectItem T="Court" Value="@c" />
+                }
+            </MudSelect>
+            <MudSelect T="Player" Label="Team1 Players" MultiSelection="true" HelperText="Select players for team1" SelectedValues="selectedteam1players" SelectedValuesChanged="OnTeam1PlayersChanged">
+                @foreach (Player player in allowedteam1players)
+                {
+                    <MudSelectItem T="Player" Value="@player" />
+                }
+            </MudSelect>
+            <MudSelect T="Player" Label="Team2 Players" MultiSelection="true" HelperText="Select players for team2" SelectedValues="selectedteam2players" SelectedValuesChanged="OnTeam2PlayersChanged">
+                @foreach (Player player in allowedteam2players)
+                {
+                    <MudSelectItem T="Player" Value="@player" />
+                }
+            </MudSelect>
+            @*
+
+            <MudText Typo="Typo.subtitle1" Align="Align.Center" Color="Color.Primary">Team1</MudText>
+            <MudButton Color="Color.Primary" OnClick="() => SelectPlayers(match.Team1)">@GetTeamButtonText("Team1",match.Team1)</MudButton>
+            <MudButton Color="Color.Primary" OnClick="() => SelectPlayers(match.Team2)">@GetTeamButtonText("Team2",match.Team2)</MudButton>
+            *@
+        </MudForm>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="MudBlazor.Color.Error" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Success" OnClick="MatchOK">OK</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public Tournament tournament { get; set; }
+    [Parameter] public MudMatch match { get; set; }
+
+    MudForm form;
+    public List<Player>? possibleplayers { get; set; } = new();
+    List<Team>? uniqueteams { get; set; }
+    public List<Player> allowedteam1players { get; set; } = new();
+    public List<Player> allowedteam2players { get; set; } = new();
+    IEnumerable<Player> selectedteam1players = new List<Player>();
+    IEnumerable<Player> selectedteam2players = new List<Player>();
+    Court? court;
+    int round;
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (match == null)
+        {
+            match = new();
+            match.Court = tournament.Courts[0];
+            match.Round = tournament.CurrentRound;
+        }
+        else
+        {
+            court = match.Court;
+            round = match.Round;
+            if (match.Team1 != null)
+            {
+                foreach (Player p in match.Team1.Players)
+                {
+                    selectedteam1players = selectedteam1players.Append(p);
+
+                }
+            }
+            if (match.Team2 != null)
+            {
+                foreach (Player p in match.Team2.Players)
+                {
+                    selectedteam2players = selectedteam2players.Append(p);
+
+                }
+            }
+        }
+        uniqueteams = TournamentGenerator.GetUniqueTeams(dbcontext.Teams.ToList());
+        possibleplayers = tournament.Players.ToList();
+        List<Match> roundmatches = tournament.GetMatchesForRound(match.Round);
+        foreach (Match m in roundmatches)
+        {
+            if (match != null && m.Court != match.Court)
+            {
+                foreach (Player p in m.Players)
+                {
+                    possibleplayers.Remove(p);
+                }
+            }
+        }
+        possibleplayers = possibleplayers.OrderBy(x => x.Displayname).ToList();
+        allowedteam1players.AddRange(possibleplayers);
+        allowedteam2players.AddRange(possibleplayers);
+
+
+
+    }
+    void OnTeam1PlayersChanged(IEnumerable<Player> selectedplayers)
+    {
+        selectedteam1players = new List<Player>();
+        foreach (Player p in selectedplayers){
+            selectedteam1players = selectedteam1players.Append(p);
+            allowedteam2players.Remove(p);
+        }
+    }
+    void OnTeam2PlayersChanged(IEnumerable<Player> selectedplayers)
+    {
+        selectedteam2players = new List<Player>();
+        foreach (Player p in selectedplayers)
+        {
+            selectedteam2players = selectedteam2players.Append(p);
+            allowedteam1players.Remove(p);
+        }
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void MatchOK()
+    {
+        //match.Team1.Players.Clear();
+        //match.Team2.Players.Clear();
+        match.Team1 = TournamentGenerator.FindTeamWithPlayersFromTeamlist(uniqueteams, selectedteam1players.ToList());
+        match.Team2 = TournamentGenerator.FindTeamWithPlayersFromTeamlist(uniqueteams, selectedteam2players.ToList());
+        if(match.Team1== null)
+        {
+            match.Team1 = new();
+            match.Team1.Players.AddRange(selectedteam1players);
+
+        }
+        if (match.Team2 == null)
+        {
+            match.Team2 = new();
+            match.Team2.Players.AddRange(selectedteam2players);
+
+        }
+        //match.Team1.Players.AddRange(selectedteam1players);
+        //match.Team2.Players.AddRange(selectedteam2players);
+        match.Court = court;
+        match.Round = round;
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

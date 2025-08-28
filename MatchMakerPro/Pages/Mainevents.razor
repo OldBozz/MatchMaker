@@ -1,0 +1,96 @@
+﻿@page "/Mainevents"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerPro.Data;
+@using Microsoft.EntityFrameworkCore;
+@using MatchMakerPro.Pages.Dialogs;
+
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudContainer Class="mt-4">
+    <MudDataGrid T="Mainevent" Items="mainevents" ReadOnly="false" EditMode="DataGridEditMode.Cell"
+                 CommittedItemChanges="CommittedItemChanges"
+                 Bordered="true" Dense="true" Hover="true" Striped="true" Filterable="true" Groupable="false" QuickFilter="_quickFilter" SortMode="SortMode.Single">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4" Class="mr-6">Main Events</MudText>
+            <MudButton @onclick="AddEvent" Variant="Variant.Filled" Color="MudBlazor.Color.Primary">Add</MudButton>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn CellStyle="max-width: 15ch" Property="x => x.Name" Title="Name" />
+            <TemplateColumn CellStyle="max-width: 1ch" CellClass="d-flex justfy-end" Sortable="false" Filterable="false" IsEditable="false">
+                <CellTemplate>
+                    <MudStack Row>
+                        <MudIconButton Size="@MudBlazor.Size.Medium" Icon="@Icons.Material.Outlined.Delete" OnClick="() => Remove(context.Item)" />
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    List<Mainevent> mainevents = new();
+    private string _searchString;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        UpdateList();
+    }
+    private void UpdateList()
+    {
+        mainevents = dbcontext.Mainevents.ToList();
+        mainevents.Sort((x, y) => x.Name.CompareTo(y.Name));
+
+    }
+    private Func<Mainevent, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    };
+    async void AddEvent()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters();
+        Mainevent newevent = new Mainevent();
+        parameters.Add("Element", newevent);
+        parameters.Add("ElementType", "Main Envent");
+        var dialog = await DialogService.ShowAsync<AddMatchMakerElementDialog>("Confirm", parameters, options);
+        DialogResult result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            dbcontext.Mainevents.Add(newevent);
+            dbcontext.SaveChanges();
+            UpdateList();
+            StateHasChanged();
+        }
+    }
+
+    private async void Remove(Mainevent mainevent)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to delete " + mainevent.Name + "?",
+            yesText: "Delete!", cancelText: "Cancel");
+        if (result != null)
+        {
+
+            dbcontext.Mainevents.Remove(mainevent);
+            dbcontext.SaveChanges();
+            UpdateList();
+            StateHasChanged();
+        }
+    }
+
+
+    void CommittedItemChanges(Mainevent mainevent)
+    {
+        dbcontext.SaveChanges();
+    }
+}

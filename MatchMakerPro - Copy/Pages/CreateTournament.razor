@@ -1,0 +1,409 @@
+﻿@page "/createtournament"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib;
+@using MatchMakerPro.Data;
+
+@using Microsoft.EntityFrameworkCore;
+@using System.ComponentModel.DataAnnotations
+@using MatchMakerPro.Pages.Dialogs;
+
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudContainer Class="mt-16" MaxWidth="MaxWidth.Medium">
+    <MudText Typo="Typo.h3" Align="MudBlazor.Align.Center" GutterBottom="true">New Tournament</MudText>
+    <MudText Typo="Typo.h5" Align="MudBlazor.Align.Left" GutterBottom="true">Settings</MudText>
+    <MudForm @ref="form" ReadOnly="false">
+        <MudSelect T="Club" Label="Club" MultiSelection="false" HelperText="Select club" @bind-Value="selectedclub">
+            @foreach (Club c in dbcontext.Clubs)
+            {
+                <MudSelectItem T="Club" Value="@c" />
+            }
+        </MudSelect>
+        <MudSelect T="Mainevent" Label="Event" MultiSelection="false" HelperText="Select event" @bind-Value="selectedmainevent">
+            @foreach (Mainevent e in dbcontext.Mainevents)
+            {
+                <MudSelectItem T="Mainevent" Value="@e" />
+            }
+        </MudSelect>
+
+        <MudDatePicker Label="Date" Date="@selectedplaydate" DateChanged="PlaydateChanged" />
+
+        <MudSelect T="Player" Label="Players" MultiSelection="true" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))" SelectAll="true" SelectAllText="Select all players" HelperText="Select 4 or more players" @bind-SelectedValues="selectedplayers">
+            @foreach (Player player in allplayers)
+            {
+                <MudSelectItem T="Player" Value="@player" />
+            }
+        </MudSelect>
+        <MudSelect T="Court" Label="Courts" MultiSelection="true" SelectAll="true" SelectAllText="Select all courts" HelperText="Select 1 or more courts" @bind-SelectedValues="selectedcourts">
+            @foreach (Court c in dbcontext.Courts)
+            {
+                <MudSelectItem T="Court" Value="@c" />
+            }
+        </MudSelect>
+        <MudNumericField @bind-Value="pointstowin" Min="1" MaxLength="2" Label="Points to win" />
+    </MudForm>
+
+
+
+
+    @if (working)
+    {
+        <MudPaper Width="100%" Elevation="0">
+            <MudProgressCircular Color="MudBlazor.Color.Primary" Size="Size.Large" Indeterminate="true" />
+        </MudPaper>
+    }
+    else if (!GetAddingMatchesDisabled())
+    {
+        <MudGrid Spacing="3" Class="mt-16">
+            @*            <MudText Typo="Typo.h5" GutterBottom="true">Matches</MudText>
+        <MudPaper Class="d-flex flex-column" Style="height:100%;width:100%" Outlined="true">
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" Disabled="GetSaveDisabled()" OnClick="@Save" Class="mx-2">Save</MudButton>
+        </MudPaper>
+        *@            <MudPaper Class="d-flex flex-column" Style="height:100%;width:100%" Outlined="true">
+                <MudDataGrid T="MudMatch" Items="@tournamentmudmatches" ReadOnly="false" EditMode="DataGridEditMode.Cell" QuickFilter="_quickMatchFilter"
+                             CommittedItemChanges="@CommittedItemChanges"
+                             Bordered="true" Dense="true" Hover="true" Striped="true" EditTrigger="DataGridEditTrigger.OnRowClick" SortMode="SortMode.None">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6" Class="mr-6" Align="MudBlazor.Align.Center">Matches</MudText>
+                        <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" Class="mx-5" StartIcon="@Icons.Material.Filled.Save" Disabled="GetSaveDisabled()" OnClick="@Save">Save</MudButton>
+                        <MudTooltip>
+                            <ChildContent>
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary" Class="ml-5" StartIcon="@Icons.Material.Filled.Add" Disabled="GetAddingMatchesDisabled()" OnClick="()=> AddMatch(null)">Add</MudButton>
+                            </ChildContent>
+                            <TooltipContent>
+                                <MudIcon Icon="@Icons.Material.Filled.Add" />
+                                <MudText Typo="Typo.body2"> Add a single match manually</MudText>
+                            </TooltipContent>
+                        </MudTooltip>
+                        <MudTooltip>
+                            <ChildContent>
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Tertiary" Class="ml-5" StartIcon="@Icons.Material.Filled.AutoFixHigh" Disabled="GetAddingMatchesDisabled()" OnClick="@Generate">Auto</MudButton>
+                            </ChildContent>
+                            <TooltipContent>
+                                <MudIcon Icon="@Icons.Material.Filled.AutoFixHigh" />
+                                <MudText Typo="Typo.body2"> Autogenerate matches by selecting algorithm and ranking use</MudText>
+                            </TooltipContent>
+                        </MudTooltip>
+                        <MudTooltip>
+                            <ChildContent>
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Info" Class="ml-5" StartIcon="@Icons.Material.Filled.Info" Disabled="GetAddingMatchesDisabled()" OnClick="@Info">Details</MudButton>
+                            </ChildContent>
+                            <TooltipContent>
+                                <MudIcon Icon="@Icons.Material.Filled.Info" />
+                                <MudText Typo="Typo.body2"> View detailed information on tournament matches</MudText>
+                            </TooltipContent>
+                        </MudTooltip>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                    </ToolBarContent>
+                    <Columns>
+                        <PropertyColumn CellStyle="max-width: 3ch" Property="x => x.Round">
+                            <EditTemplate>
+                                <MudNumericField HideSpinButtons="true" Value="@context.Item.Round" ValueChanged="(int value) => RoundValueChanged(context.Item,value)" Min=" 0" MaxLength="2" />
+                            </EditTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn CellStyle="max-width: 3ch" Property="x => x.Court">
+                            <EditTemplate>
+                                <MudSelect T="Court" MultiSelection="false" Value="context.Item.Court" ValueChanged="(Court value) => CourtValueChanged(context.Item,value)">
+                                    @foreach (Court c in currenttournament.Courts)
+                                    {
+                                        <MudSelectItem T="Court" Value="@c" />
+                                    }
+                                </MudSelect>
+                            </EditTemplate>
+                        </PropertyColumn>
+                        <PropertyColumn CellStyle="max-width: 25ch" Property="x => x.Team1Name" Title="Team1" IsEditable="false" />
+                        <PropertyColumn CellStyle="max-width: 25ch" Property="x => x.Team2Name" Title="Team2" IsEditable="false" />
+                        <TemplateColumn CellClass="d-flex" Sortable="false" Filterable="false" IsEditable="false">
+                            <CellTemplate>
+                                <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Filled.Edit" OnClick=" ()=> HandleMudMatchAddAction(context.Item)"></MudIconButton>
+                                <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" OnClick=" ()=> HandleMudMatchDeleteAction(context.Item)"></MudIconButton>
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                    @*                                                       <PagerContent>
+                <MudDataGridPager T="Match" />
+                </PagerContent>
+                *@
+                </MudDataGrid>
+            </MudPaper>
+        </MudGrid>
+
+    }
+
+</MudContainer>
+
+
+
+@code {
+    MudForm? form;
+    bool working = false;
+    private string? _searchString;
+
+
+    private List<Player> allplayers = new List<Player>();
+    private IEnumerable<Player> selectedplayers { get; set; } = new List<Player>();
+    private IEnumerable<Court> selectedcourts { get; set; } = new List<Court>();
+    private Club? selectedclub;
+    private Mainevent? selectedmainevent;
+    private DateTime selectedplaydate = DateTime.Today;
+    private int pointstowin = 15;
+    private Tournament currenttournament = new();
+    public List<MudMatch> tournamentmudmatches = new();
+    //private bool savedisabled = true;
+    //private bool addingmatchesdisabled = true;
+    //private int courtidx = 0;
+    int currentround = 1;
+
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        selectedclub = dbcontext.Clubs.ToList().FirstOrDefault();
+        selectedmainevent = dbcontext.Mainevents.ToList().FirstOrDefault();
+        allplayers = dbcontext.Players.ToList();
+        allplayers.Sort((x, y) => x.Displayname.CompareTo(y.Displayname));
+    }
+    //private IEnumerable<Match> GetMatches()
+    //{
+    //    return currenttournament.Matches.ToList().OrderBy(x => x.Round).ThenBy(x => x.Court);
+    //}
+    ////private void UpdateMatchList()
+    //{
+    //    matches = currenttournament.Matches.ToList().OrderBy(x => x.Round).ThenBy(x => x.Court).ToList();
+
+    //}
+    private void UpdateMatchList()
+    {
+        MudMatch.UpdateMudData(currenttournament, ref tournamentmudmatches);
+    }
+    private void HandleMudMatchAddAction(MudMatch match)
+    {
+        AddMatch(match);
+    }
+    private void HandleMudMatchDeleteAction(MudMatch match)
+    {
+        RemoveMatch(match);
+
+    }
+
+    private void SetTournamentParamters()
+    {
+        currenttournament.Club = selectedclub;
+        currenttournament.Mainevent = selectedmainevent;
+        currenttournament.PlayDate = selectedplaydate;
+        currenttournament.PointsToWin = pointstowin;
+        currenttournament.Courts.Clear();
+        currenttournament.Courts.AddRange(selectedcourts);
+        currenttournament.Players.Clear();
+        currenttournament.Players.AddRange(selectedplayers);
+        currenttournament.ExistingTeams = TournamentGenerator.GetUniqueTeams(dbcontext.Teams.ToList());
+      
+    }
+
+    //private async Task<DialogResult> OpenEditMatchDialog(Match match)
+    //{
+    //    var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+    //    var parameters = new DialogParameters();
+    //    parameters.Add("tournament", currenttournament);
+    //    parameters.Add("match", match);
+
+    //    var dialog = await DialogService.ShowAsync<EditMatchDialog>("Confirm", parameters, options);
+    //    return await dialog.Result;
+    //}
+    //private Court GetNextCourt()
+    //{
+    //    if(++courtidx >= selectedcourts.Count())
+    //    {
+    //        courtidx = 0;
+    //        currentround++;
+    //    }
+    //    return currenttournament.Courts[courtidx];
+    //}
+
+    //private async Task<DialogResult> OpenSaveDialog()
+    //{
+    //    var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+    //    var parameters = new DialogParameters();
+    //    parameters.Add("Tournament", currenttournament);
+
+    //    var dialog = await DialogService.ShowAsync<SaveTournamentDialog>("Confirm", parameters, options);
+    //    return await dialog.Result;
+    //}
+    void RoundValueChanged(MudMatch mudmatch, int value)
+    {
+        mudmatch.Round = value;
+        mudmatch.TransferToParent();
+        UpdateMatchList();
+        StateHasChanged();
+    }
+
+    void CourtValueChanged(MudMatch mudmatch, Court value)
+    {
+        mudmatch.Court = value;
+        mudmatch.TransferToParent();
+        UpdateMatchList();
+        StateHasChanged();
+    }
+    void PlaydateChanged(DateTime? playdate)
+    {
+        if (playdate != null)
+            selectedplaydate = playdate.Value;
+    }
+
+    void CommittedItemChanges(MudMatch match)
+    {
+        match.TransferToParent();
+    }
+    private async void Info()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters();
+        parameters.Add("Info", currenttournament.ToInfoString());
+
+        var dialog = await DialogService.ShowAsync<ShowInfoDialog>
+            ("Tournament Details", parameters, options);
+        await dialog.Result;
+    }
+
+    private async void Generate()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters();
+        parameters.Add("tournament", currenttournament);
+
+        var dialog = await DialogService.ShowAsync<GenerateTournamentOptionsDialog>
+            ("Generate", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            working = true;
+            StateHasChanged();
+            SetTournamentParamters();
+            await TournamentGenerator.GenerateMatchesAsync(currenttournament);
+            UpdateMatchList();
+            working = false;
+            StateHasChanged();
+        }
+    }
+    private async void AddMatch(MudMatch mudmatch)
+    {
+        SetTournamentParamters();
+        if (mudmatch == null)
+        {
+            mudmatch = new();
+            mudmatch.matchparent = new Match();
+            mudmatch.Virtual = true;
+            mudmatch.Round = currenttournament.GetNextFreeRound(); ;
+            mudmatch.Court = currenttournament.Courts.ElementAt(0);
+        }
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters();
+        parameters.Add("tournament", currenttournament);
+        parameters.Add("match", mudmatch);
+
+        var dialog = await DialogService.ShowAsync<EditMatchDialog>
+            ("Confirm", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            mudmatch.TransferToParent();
+            currenttournament.Matches.Add(mudmatch.matchparent);
+            UpdateMatchList();
+            StateHasChanged();
+        }
+
+    }
+    async void RemoveMatch(MudMatch match)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+        "Warning",
+        "Are you sure you want to delete " + match.Name + "?",
+        yesText: "Delete!", cancelText: "Cancel");
+        if (result != null)
+        {
+            if (match != null && match.matchparent != null)
+                currenttournament.Matches.Remove(match.matchparent);
+            UpdateMatchList();
+            StateHasChanged();
+        }
+    }
+
+    private async void Save()
+    {
+        SetTournamentParamters();
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters();
+        parameters.Add("Tournament", currenttournament);
+
+        var dialog = await DialogService.ShowAsync<SaveTournamentDialog>("Confirm", parameters, options);
+        DialogResult result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+
+            //TournamentModelTest.PlayDate = TournamentModel.PlayDate;
+            //TournamentModelTest.Mainevent= TournamentModel.Mainevent;
+            //TournamentModelTest.Club = TournamentModel.Club;
+            //TournamentModelTest.Name = TournamentModel.Name;
+            //await dbcontext.SaveChangesAsync();
+            //TournamentModelTest.Players.AddRange(TournamentModel.Players);
+            //await dbcontext.SaveChangesAsync();
+            //TournamentModelTest.Courts.AddRange(TournamentModel.Courts);
+            //await dbcontext.SaveChangesAsync();
+            //TournamentModelTest.Teams.AddRange(TournamentModel.Teams);
+            //await dbcontext.SaveChangesAsync();
+            ////TournamentModelTest.Matches.Add(new MatchMakerLib.MatchMakerModel.Match());
+            ////await dbcontext.SaveChangesAsync();
+            //TournamentModelTest.Matches.AddRange(TournamentModel.Matches);
+            //dbcontext.Add(TournamentModelTest);
+            MudMatch.TransferMudData(tournamentmudmatches);
+            dbcontext.Add(currenttournament);
+            await dbcontext.SaveChangesAsync();
+            NavigationManager.NavigateTo("/");
+        }
+
+
+    }
+    private Func<MudMatch, bool>
+     _quickMatchFilter => x =>
+     {
+         if (string.IsNullOrWhiteSpace(_searchString))
+             return true;
+
+         if (x.Team1.ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+             return true;
+         if (x.Team2.ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+             return true;
+         return false;
+     };
+
+
+    private bool GetAddingMatchesDisabled()
+    {
+        bool result = selectedclub == null;
+        result |= selectedmainevent == null;
+        result |= selectedcourts.Count() < 1;
+        result |= selectedplayers.Count() < 4;
+        return result;
+
+    }
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{selectedValues.Count} player{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
+
+    }
+
+    private bool GetSaveDisabled() => currenttournament.Matches.Count == 0 || GetAddingMatchesDisabled();
+
+}
+
+
+
+}

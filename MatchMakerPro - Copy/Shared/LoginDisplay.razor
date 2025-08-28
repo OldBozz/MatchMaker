@@ -1,0 +1,16 @@
+﻿<AuthorizeView>
+    <Authorized>
+        @*<MudAvatar Color="Color.Info" Variant="Variant.Outlined"><a href="Identity/Account/Manage">Hello, @context.User.Identity?.Name!</a></MudAvatar>*@
+        <MudLink Href="Identity /Account/Manage" Color="MudBlazor.Color.Tertiary">Hello, @context.User.Identity?.Name!</MudLink>
+        @*<a href="Identity/Account/Manage">Hello, @context.User.Identity?.Name!</a>*@
+        <form method="post" action="Identity/Account/Logout">
+            <button type="submit" class="nav-link btn btn-link">Log out</button>
+        </form>
+    </Authorized>
+    <NotAuthorized>
+        <MudLink Href="Identity/Account/Register" Color="MudBlazor.Color.Tertiary">Register</MudLink>
+        <MudLink Href="Identity/Account/Login" Color="MudBlazor.Color.Tertiary">Login</MudLink>
+   @*      <a href="Identity/Account/Register">Register</a>
+        <a href="Identity/Account/Login">Log in</a>
+ *@   </NotAuthorized>
+</AuthorizeView>

@@ -1,0 +1,301 @@
+﻿@page "/Ranking"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerPro.Data;
+@using Microsoft.EntityFrameworkCore;
+@using static MatchMakerLib.MatchMakerModel.Team;
+@using MatchMakerPro.Pages.Dialogs;
+
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudPaper Width="100%" Elevation="0">
+    <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">Player Ranking</MudText>
+</MudPaper>
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4" Elevation="0">
+
+            <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">Filter criteria</MudText>
+            <MudForm @ref="form">
+                <MudDatePicker Label="Start date" Date="@startdate" ShowWeekNumbers="true" AutoClose="true" DateChanged="OnStartDateTimeChanged" />
+                <MudDatePicker Label="End date" Date="@enddate" ShowWeekNumbers="true" AutoClose="true" DateChanged="OnEndDateTimeChanged" />
+                <MudSelect T="Mainevent" Label="Event(s)" MultiSelection="true" SelectAll="true" SelectAllText="Select all events"  SelectedValues="selectedevents" SelectedValuesChanged="OnMaineventChanged">
+                    @foreach (Mainevent e in dbcontext.Mainevents)
+                    {
+                        <MudSelectItem T="Mainevent" Value="@e" />
+                    }
+                </MudSelect>
+                <MudText Typo="Typo.subtitle2" Align="MudBlazor.Align.Center">Matches with selected criteria: @matchlist.Count</MudText>
+                <MudNumericField Label="Max matches per player" HelperText="Maximum number of matches to include in player ranking" Value="@maxmatches" ValueChanged=" (int value)=> OnMaxMatchChanged(value)" Min="1" Max="100" />
+            </MudForm>
+
+        </MudPaper>
+        <MudPaper Class="pa-4 mt-4" Width="100%">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Sharp.Save" Color="MudBlazor.Color.Secondary" Class="ml-5 mr-10" OnClick="Save">Save</MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="5">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">Players</MudText>
+            <MudDataGrid T="Player" Items="@allplayers" ReadOnly="false" FixedHeader="true" EditMode="DataGridEditMode.Cell"
+                         Bordered="true" Dense="true" Hover="true" Striped="true" EditTrigger="DataGridEditTrigger.OnRowClick" SortMode="SortMode.Single">
+                <Columns>
+                    @*<PropertyColumn Property="x => x.RankPositionString()" Title="" IsEditable="false" />*@
+                    <PropertyColumn Property="x => x.RankPositionString()" Title="Player" IsEditable="false" />
+                    <PropertyColumn Property="x => x.RankMatchString()" Title="Matches" IsEditable="false" />
+                    <PropertyColumn Property="x => x.RankString()" Title="Rank" />
+                    @*<PropertyColumn Property="x => x.Rank" Title="Change" IsEditable="false" />*@
+                    <TemplateColumn CellClass="d-flex" Sortable="false" Filterable="false" IsEditable="false">
+                        <CellTemplate>
+                            <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Filled.PermDeviceInformation" OnClick=" ()=> ShowInfo(context.Item)"></MudIconButton>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+
+@code {
+
+
+    private List<Player> allplayers = new List<Player>();
+    public IEnumerable<Mainevent>? selectedevents { get; set; } = new List<Mainevent>();
+
+    private DateTime startdate { get; set; } = new DateTime(DateTime.Now.Year, 1, 1);
+    private DateTime enddate { get; set; } = DateTime.Now;
+    private int maxmatches { get; set; }= 100;
+    private Dictionary<Player, int> orgvalues = new();
+    MudForm form;
+    List<Match> matchlist = new();
+    List<Match> previousmatchlist = new();
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override void OnInitialized()
+    {
+
+        allplayers = dbcontext.Players.ToList();
+        UpdateMatchlist();
+        foreach (Player p in allplayers)
+        {
+            orgvalues.Add(p, p.Rank);
+        }
+        selectedevents = new List<Mainevent>();
+        foreach (Mainevent e in dbcontext.Mainevents)
+        {
+            selectedevents = selectedevents.Append(e);
+        }
+        Update();
+    }
+    private void OnStartDateTimeChanged(DateTime? d)
+    {
+        startdate = d.Value;
+        Update();
+    }
+    private void OnEndDateTimeChanged(DateTime? d)
+    {
+        enddate = d.Value;
+        Update();
+    }
+
+    private void OnMaineventChanged(IEnumerable<Mainevent> selectedmainevents)
+    {
+        selectedevents = new List<Mainevent>();
+        foreach (Mainevent e in selectedmainevents)
+        {
+            selectedevents = selectedevents.Append(e);
+        }
+        Update();
+    }
+    private void OnMaxMatchChanged(int maxmatch)
+    {
+        maxmatches = maxmatch;
+        Update();
+    }
+    private void Update()
+    {
+        UpdateMatchlist();
+        DoUpdateRanking();
+        DoUpdatePreviousRanking();
+
+    }
+
+    private void UpdateMatchlist()
+    {
+        allplayers.OrderByDescending(p => p.Rank);
+        var query = dbcontext.Matches.AsQueryable();
+        query = dbcontext.Matches.Where(m => m.State == MatchMakerElement.ElementStatus.FINISHED);
+        List<Match> tmp = query.Include(t => t.Team1).ThenInclude(p => p.Players).Include(t => t.Team2).ThenInclude(p => p.Players).ToList();
+        matchlist.Clear();
+        foreach (Match m in tmp)
+        {
+            if (m.Tournament.PlayDate >= startdate && m.Tournament.PlayDate <= enddate && selectedevents.Contains(m.Tournament.Mainevent))
+                matchlist.Add(m);
+        }
+        matchlist = matchlist.OrderByDescending(m => m.Tournament.PlayDate).ToList();
+        DateTime lastplaydate = DateTime.Now;
+        if(matchlist != null && matchlist.Count > 0)
+            lastplaydate = matchlist[0].Tournament.PlayDate;
+        foreach(Match m in matchlist)
+        {
+            if (m.Tournament.PlayDate < lastplaydate)
+                previousmatchlist.Add(m);
+        }
+
+    }
+    private void DoUpdateRanking()
+    {
+        foreach (Player player in allplayers)
+        {
+            double won = 0;
+            double played = 0;
+            string details = "";
+            foreach (Match match in matchlist)
+            {
+                if (match.HasPlayer(player))
+                {
+                    details += string.Format("Match {0} played on {1} in tournament {2} counts as a ", match, match.Finishdate, match.Tournament);
+
+                    played++;
+                    if (match.PlayerWon(player))
+                    {
+                        details += "win\n";
+                        won++;
+                    }
+                    else
+                    {
+                        details += "loss\n";
+
+                    }
+                }
+                if (played >= maxmatches)
+                    break;
+            }
+            if (played > 0){
+                player.Rank = (int)((won / played) * 100);
+            }
+            else{
+                player.Rank = 0;
+            }
+            player.RankMatchCount = (int)played;
+            player.RankWins = (int)won;
+            player.RankInfo += string.Format("{0} matches considered with {1} wins, gives a rank of {2}\n\n{3}", played, won, player.Rank, details);
+            //    parameters.Add("Info", info);
+        }
+        allplayers = allplayers.OrderByDescending(r => r.Rank).ToList();
+        int pos = 1;
+        foreach(Player p in allplayers)
+        {
+            p.RankPosition = pos++;
+        }
+    }
+    private void DoUpdatePreviousRanking()
+    {
+        foreach (Player player in allplayers)
+        {
+            double won = 0;
+            double played = 0;
+            foreach (Match match in previousmatchlist)
+            {
+                if (match.HasPlayer(player))
+                {
+                    played++;
+                    if (match.PlayerWon(player))
+                        won++;
+                }
+                if (played >= maxmatches)
+                    break;
+            }
+            if (played > 0)
+            {
+                player.PreviousRank = (int)((won / played) * 100);
+            }
+            else
+            {
+                player.PreviousRank = 0;
+            }
+        }
+        List<Player> players = allplayers.OrderByDescending(r => r.PreviousRank).ToList();
+        int pos = 1;
+        foreach (Player p in players)
+        {
+            p.PreviousRankPosition = pos++;
+        }
+    }
+
+    //private async void ShowInfo(Player player)
+    //{
+    //    var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+    //    var parameters = new DialogParameters();
+    //    string info = "";
+    //    string details = "";
+    //    double won = 0;
+    //    double played = 0;
+    //    foreach (Match match in matchlist)
+    //    {
+    //        if (match.HasPlayer(player))
+    //        {
+    //            played++;
+    //            details += string.Format("Match {0} played on {1} in tournament {2} counts as a ",match,match.Finishdate, match.Tournament);
+    //            if (match.PlayerWon(player))
+    //            {
+    //                won++;
+    //                details += "win\n";
+    //            }
+    //            else
+    //            {
+    //                details += "loss\n";
+    //            }
+    //        }
+    //        if (played >= maxmatches)
+    //            break;
+    //    }
+    //    if (played > 0){
+    //        player.Rank = (int)((won / played) * 100);
+    //    }
+    //    else{
+    //        player.Rank = 0;
+    //    }
+    //    //info += string.Format("{0} matches considered with [1} wins, gives a rank of {2}\n", played, won,player.Rank);
+    //    info += string.Format("{0} matches considered with {1} wins, gives a rank of {2}\n\n{3}", played, won, player.Rank, details);
+    //    parameters.Add("Info", info);
+
+    //        var dialog = await DialogService.ShowAsync<ShowInfoDialog>
+    //        (string.Format("Ranking calculation for player {0}\n", player.Displayname), parameters, options);
+    //        await dialog.Result;
+    //}
+    private async void ShowInfo(Player player)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters();
+        parameters.Add("Info", player.RankInfo);
+
+        var dialog = await DialogService.ShowAsync<ShowInfoDialog>(string.Format("Ranking calculation for player {0}\n", player.Displayname), parameters, options);
+        await dialog.Result;
+    }
+
+    private string GetUpdatebuttonText()
+    {
+        return string.Format("Update using players {0} newest matches", matchlist.Count > maxmatches ? maxmatches : matchlist.Count);
+    }
+    private void Save()
+    {
+        dbcontext.SaveChanges();
+
+    }
+    private void Reset()
+    {
+        foreach (KeyValuePair<Player, int> pair in orgvalues)
+        {
+            pair.Key.Rank = pair.Value;
+        }
+
+        dbcontext.SaveChanges();
+
+    }
+}

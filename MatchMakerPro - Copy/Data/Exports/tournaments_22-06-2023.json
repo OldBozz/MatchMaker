@@ -1,0 +1,352 @@
+{
+  "$id": "1",
+  "startdate": "2023-06-16T14:08:59.483348",
+  "finishdate": "2023-06-16T14:09:37.272057",
+  "mainevent": null,
+  "club": {
+    "$id": "2",
+    "players": {
+      "$id": "3",
+      "$values": []
+    },
+    "id": 1,
+    "name": "EVK",
+    "state": 0
+  },
+  "playDate": "2023-06-05T00:00:00",
+  "matches": {
+    "$id": "4",
+    "$values": [
+      {
+        "$id": "5",
+        "finishdate": "2023-06-21T16:46:34.520007",
+        "round": 1,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 4,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "6",
+          "$values": []
+        },
+        "id": 153,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "7",
+        "finishdate": "2023-06-21T16:46:34.520007",
+        "round": 1,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 7,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "8",
+          "$values": []
+        },
+        "id": 154,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "9",
+        "finishdate": "2023-06-21T16:46:34.520007",
+        "round": 2,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 9,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "10",
+          "$values": []
+        },
+        "id": 155,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "11",
+        "finishdate": "2023-06-21T16:46:34.520007",
+        "round": 2,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 12,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "12",
+          "$values": []
+        },
+        "id": 156,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "13",
+        "finishdate": "2023-06-21T16:46:34.520007",
+        "round": 3,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 10,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "14",
+          "$values": []
+        },
+        "id": 157,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "15",
+        "finishdate": "2023-06-21T16:46:34.520007",
+        "round": 3,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 9,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "16",
+          "$values": []
+        },
+        "id": 158,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "17",
+        "finishdate": "2023-06-21T16:46:34.520007",
+        "round": 4,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 7,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "18",
+          "$values": []
+        },
+        "id": 159,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "19",
+        "finishdate": "2023-06-21T16:46:34.520007",
+        "round": 4,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 8,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "20",
+          "$values": []
+        },
+        "id": 160,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "21",
+        "finishdate": "2023-06-21T16:46:34.520007",
+        "round": 5,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 8,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "22",
+          "$values": []
+        },
+        "id": 161,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "23",
+        "finishdate": "2023-06-21T16:46:34.520008",
+        "round": 5,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 12,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "24",
+          "$values": []
+        },
+        "id": 163,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "25",
+        "finishdate": "2023-06-21T16:46:34.520008",
+        "round": 6,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 12,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "26",
+          "$values": []
+        },
+        "id": 164,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "27",
+        "finishdate": "2023-06-21T16:46:34.520008",
+        "round": 6,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 9,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "28",
+          "$values": []
+        },
+        "id": 165,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "29",
+        "finishdate": "2023-06-21T16:46:34.520008",
+        "round": 7,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 15,
+        "team2Points": 9,
+        "team1Status": 0,
+        "team2Status": 1,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "30",
+          "$values": []
+        },
+        "id": 166,
+        "name": "",
+        "state": 2
+      },
+      {
+        "$id": "31",
+        "finishdate": "2023-06-21T16:46:34.520008",
+        "round": 7,
+        "court": null,
+        "team1": null,
+        "team2": null,
+        "team1Points": 13,
+        "team2Points": 15,
+        "team1Status": 1,
+        "team2Status": 0,
+        "tournament": {
+          "$ref": "1"
+        },
+        "players": {
+          "$id": "32",
+          "$values": []
+        },
+        "id": 167,
+        "name": "",
+        "state": 2
+      }
+    ]
+  },
+  "currentRound": 1,
+  "totalRounds": 10,
+  "pointsToWin": 15,
+  "finalMatch": null,
+  "playersStatus": {
+    "$id": "33",
+    "$values": []
+  },
+  "existingTeams": {
+    "$id": "34",
+    "$values": []
+  },
+  "algorithm": 1,
+  "rankinguse": 1,
+  "shuffle": true,
+  "unusedmatches": {
+    "$id": "35",
+    "$values": []
+  },
+  "id": 3,
+  "name": "EVK Sommer Beach 31 maj 2023",
+  "state": 2
+}

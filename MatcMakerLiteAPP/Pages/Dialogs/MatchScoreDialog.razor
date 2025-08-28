@@ -1,0 +1,42 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib.Data;
+@inject MatchMakerDbContext dbcontext
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Save" Class="mr-3 mb-n1" />
+            Save tournament
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudNumericField @bind-Value="@Match.Team1Points" Min="1" MaxLength="2" Label="@Match.Team1.Name" />
+        <MudNumericField @bind-Value="@Match.Team2Points" Min="1" MaxLength="2" Label="@Match.Team2.Name" />
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="SaveTournament">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public Match Match { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void SaveTournament()
+    {
+
+         MudDialog.Close(DialogResult.Ok(true));
+    }
+}

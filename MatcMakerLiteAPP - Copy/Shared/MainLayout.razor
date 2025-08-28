@@ -1,0 +1,54 @@
+﻿@inherits LayoutComponentBase
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+
+
+
+    <MudAppBar>
+        <MudIconButton Href="/" Icon="@Icons.Material.Filled.SportsVolleyball" Color="Color.Inherit" Edge="Edge.Start"  />
+        <MudText Typo="Typo.h4" Class="mx-10" Align="Align.Left">MatchMakerLite</MudText>
+
+        @*<MudSpacer />*@
+        <MudMenu Color="Color.Inherit" Dense="true" ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+            <ActivatorContent>
+                <MudChip Icon="@Icons.Material.Filled.AddChart" Color="Color.Primary">Tournament</MudChip>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem Href="/CreateTournament">Create new</MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+        <MudMenu Icon="@Icons.Material.Outlined.AddCard" Dense="true" Color="Color.Inherit" ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+            <ActivatorContent>
+                <MudChip Icon="@Icons.Material.Filled.AddCard" Color="Color.Primary">Data</MudChip>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem Href="/Clubs">Clubs</MudMenuItem>
+                <MudMenuItem Href="/Mainevents">Main events</MudMenuItem>
+                <MudMenuItem Href="/Players">Players</MudMenuItem>
+                <MudMenuItem Href="/Teams">Teams</MudMenuItem>
+                <MudMenuItem Href="/Matches">Matches</MudMenuItem>
+                <MudMenuItem Href="/Courts">Courts</MudMenuItem>
+                <MudMenuItem Href="/Tournaments">Tournaments</MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+
+    </MudAppBar>
+ @*   <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">MatchMakerLite</MudText>
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+*@    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.False" Class="my-1 pt-1">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+
+}

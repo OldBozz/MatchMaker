@@ -1,0 +1,45 @@
+﻿@page "/Clubs"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib.Data;
+@using MatcMakerLiteAPP.Pages.Dialogs;
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudContainer Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4" Align="Align.Center" GutterBottom="true">Clubs</MudText>
+    <MudButton @onclick="OpenAddElementDialog" Variant="Variant.Filled" Color="Color.Primary">
+        Add Club
+    </MudButton>
+    <MudDataGrid T="Club" Items="@(dbcontext.Clubs.ToList())" ReadOnly="false" EditMode="DataGridEditMode.Form"
+                 Bordered="true" Dense="true" Hover="true" Striped="true" EditTrigger="DataGridEditTrigger.OnRowClick" SortMode="SortMode.None">
+        <Columns>
+            <PropertyColumn Property="x => x.Name" />
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+@code {
+    private async Task<DialogResult> OpenAddElementDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters();
+        parameters.Add("Element", new Club());
+        parameters.Add("ElementType", "Club");
+
+        var dialog = await DialogService.ShowAsync<AddMatchMakeElementDialog>("Confirm", parameters, options);
+        return await dialog.Result;
+    }
+    void CommittedItemChanges(Match match)
+    {
+        //bool? result = await DialogService.ShowMessageBox(
+        //      "Info",
+        //      "CommittedItemChanges",
+        //      yesText: "Delete!", cancelText: "Cancel");
+        ////state = result == null ? "Canceled" : "Deleted!";
+
+        //StateHasChanged();
+
+    }
+
+}

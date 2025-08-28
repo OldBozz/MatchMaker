@@ -1,0 +1,178 @@
+﻿@page "/RankingChart"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerPro.Data;
+@using Microsoft.EntityFrameworkCore;
+@using static MatchMakerLib.MatchMakerModel.Team;
+@using MatchMakerPro.Pages.Dialogs;
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+<MudPaper Width="100%" Elevation="0">
+    <MudCard>
+
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4" Align="MudBlazor.Align.Center">Player Ranking</MudText>
+                <MudSelect T="Player" Label="Players" MultiSelection="true" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))" SelectAll="true" SelectAllText="Select all players"
+                           HelperText="Select 1 or more players" SelectedValues="selectedplayers" SelectedValuesChanged="OnSelectedPlayersChanged" OnClose="OnPlayersClose">
+                    @foreach (Player player in allplayers)
+                    {
+                        <MudSelectItem T="Player" Value="@player" />
+                    }
+                </MudSelect>
+                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary" Class="ml-5 mr-5" StartIcon="@Icons.Material.Filled.FilterAlt" OnClick="OnEditFilters">Select filters</MudButton>
+            </CardHeaderContent>
+        </MudCardHeader>
+        @if (loading)
+        {
+            <MudCardContent>
+                <MudProgressCircular Color="MudBlazor.Color.Primary" Size="Size.Large" Indeterminate="true" />
+            </MudCardContent>
+
+        }
+        else
+        {
+            if (apexchartseriesselected.Count() > 0)
+            {
+                <MudCardContent>
+                    <ApexChart TItem="ApexChartPoint"
+                               Title="Ranking"
+                               Height="500">
+                        @foreach (ApexChartSeries cs in apexchartseriesselected)
+                        {
+                            <ApexPointSeries TItem="ApexChartPoint"
+                                             Items="cs.ChartPoints"
+                                             Name=@cs.Name
+                                             SeriesType="SeriesType.Line"
+                                             XValue="@(e => e.XValue)"
+                                             YValue="@(e => e.YValue)" />
+                        }
+                    </ApexChart>
+                    @*<MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>*@
+                </MudCardContent>
+            }
+
+        }
+    </MudCard>
+</MudPaper>
+@code {
+    bool loading = true;
+    private List<Player> allplayers = new List<Player>();
+    private IEnumerable<Player> selectedplayers = new List<Player>();
+    List<Match> matchlist = new();
+    Filter filter = new();
+
+    //public List<ChartSeries> Series = new List<ChartSeries>();
+    //public string[] XAxisLabels = { };
+    private List<ApexChartSeries> apexchartseriesall = new();
+    private List<ApexChartSeries> apexchartseriesselected = new();
+    //ApexChartSeries cs = new();
+    List<ApexChartPoint> points = new();
+    string name = "";
+
+    protected override void OnInitialized()
+    {
+
+
+    }
+    protected override void OnParametersSet()
+    {
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            allplayers = dbcontext.Players.ToList();
+            UpdateData();
+
+        }
+    }
+    void OnSelectedPlayersChanged(IEnumerable<Player> players)
+    {
+        selectedplayers = new List<Player>();
+        foreach (Player p in players)
+            selectedplayers = selectedplayers.Append(p);
+
+    }
+    void OnPlayersClose()
+    {
+        RefreshData();
+
+    }
+    async void OnEditFilters()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters();
+        parameters.Add("filter", filter);
+
+        var dialog = await DialogService.ShowAsync<EditFilterDialog>
+            ("Edit filters", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            UpdateData();
+        }
+
+    }
+    private void RefreshData()
+    {
+        loading = true;
+        StateHasChanged();
+        apexchartseriesselected.Clear();
+        foreach (Player player in selectedplayers)
+        {
+            @foreach (ApexChartSeries cs in apexchartseriesall)
+            {
+                if(player.Displayname.Equals(cs.Name))
+                {
+                    apexchartseriesselected.Add(cs);
+                    break;
+                }
+            }
+        }
+        loading = false;
+    }
+
+    private void UpdateData()
+    {
+        loading = true;
+        StateHasChanged();
+        List<DateTime> datesplayed = Statistics.GetDatesPlayed(dbcontext, filter);
+        //List<String> datesplayedasstrings = new();
+        //foreach (DateTime dt in datesplayed)
+        //{
+        //    datesplayedasstrings.Add(dt.ToString("dd MM yyyy"));
+        //}
+        //XAxisLabels = datesplayedasstrings.ToArray();
+        //Series.Clear();
+        apexchartseriesall.Clear();
+        foreach (Player player in allplayers)
+        {
+            //List<double> playerranks = new();
+            ApexChartSeries apexseries = new();
+            apexseries.Name = player.Displayname;
+            foreach (DateTime date in datesplayed)
+            {
+                double rank = Statistics.GetRankForPlayerOnDate(dbcontext, filter, player, date);
+                //playerranks.Add(rank);
+                ApexChartPoint point = new();
+                point.XValue = date.ToString("dd MM yyyy");
+                point.YValue = (decimal)rank;
+                apexseries.ChartPoints.Add(point);
+            }
+            //Series.Add(new ChartSeries() { Name = player.Displayname, Data = playerranks.ToArray() });
+            apexchartseriesall.Add(apexseries);
+            //points = apexseries.ChartPoints;
+            //name = apexseries.Name;
+        }
+        loading = false;
+        StateHasChanged();
+    }
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{selectedValues.Count} player{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
+
+    }
+
+}

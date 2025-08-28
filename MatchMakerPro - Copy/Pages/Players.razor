@@ -1,0 +1,182 @@
+﻿@page "/Players"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerPro.Data;
+@using Microsoft.EntityFrameworkCore;
+@using MatchMakerPro.Pages.Dialogs;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+@inject Club activeclub
+
+<MudContainer Class="mt-4">
+     <MudDataGrid T="Player" Items="players" ReadOnly="false" EditMode="DataGridEditMode.Cell"
+                 CommittedItemChanges="CommittedItemChanges"
+                 Bordered="true" Dense="true" Hover="true" Striped="true" Filterable="true" QuickFilter="_quickFilter" SortMode="SortMode.Single">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4" Class="mr-6">Players</MudText>
+            <MudButton @onclick="AddPlayer" Variant="Variant.Filled" Color="MudBlazor.Color.Primary">Add</MudButton>
+
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn CellStyle="max-width: 15ch" Property="x => x.Displayname" Title="Call Sign" />
+            <PropertyColumn CellStyle="max-width: 30ch" Property="x => x.Name" Title="Full Name" />
+            <PropertyColumn CellStyle="max-width: 5ch" Property="x => x.Dob" Title="Date of Birth">
+                <EditTemplate>
+                    <MudDatePicker @bind-Date="@context.Item.Dob" ValueChanged="CommittedItemChanges" />
+                </EditTemplate>
+            </PropertyColumn>
+            <PropertyColumn CellStyle="max-width: 3ch" Property="x => x.Rank" Title="Rank" />
+@*            <PropertyColumn Property="x => x.Clubs" Value="x => x.ClubsAsCSV" Title="Clubs" IsEditable="false">
+                <EditTemplate>
+                    <MudSelect MultiSelection="true" @bind-Value="context.Item.Clubs" Margin="Margin.Dense">
+                        @foreach (Club c in dbcontext.Clubs.ToList())
+                        {
+                            <MudSelectItem T="Club" Value="@c">@c.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </EditTemplate>
+            </PropertyColumn>
+*@            <TemplateColumn CellClass="d-flex" Sortable="false" Filterable="false" IsEditable="false">
+                <CellTemplate>
+                    <MudStack Row>
+                        <MudButton Size="@Size.Medium" StartIcon="@Icons.Material.Filled.PlaylistAdd" OnClick="() => AddClubs(context.Item)" >Clubs</MudButton>
+                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" OnClick="() => Remove(context.Item)" ></MudIconButton>
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Player" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    List<Player> players = new();
+    private string? _searchString;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        players = dbcontext.Players.Include("Clubs").ToList();
+        players.Sort((x, y) => x.Displayname.CompareTo(y.Displayname));
+    }
+    private Func<Player, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Displayname.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    };
+
+      async void AddClubs(Player player)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters();
+        //List<Club> selectedclubs = player.Clubs.ToList();
+        parameters.Add("allclubs", dbcontext.Clubs.ToList());
+        parameters.Add("selectedclubs", player.Clubs.ToList());
+
+        var dialog = await DialogService.ShowAsync<SelectClubsDialog>("Confirm", parameters, options);
+        DialogResult result = await dialog.Result;
+        if (!result.Canceled)
+        {
+
+            player.Clubs.Clear();
+            player.Clubs.AddRange((IEnumerable<Club>)result.Data);
+            dbcontext.SaveChanges();
+            //StateHasChanged();
+        }
+    }
+    void Remove(Player player)
+    {
+        dbcontext.Players.Remove(player);
+        dbcontext.SaveChanges();
+        players = dbcontext.Players.Include("Clubs").ToList();
+        //StateHasChanged();
+    }
+    async void AddPlayer()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters();
+        Player newplayer = new Player();
+        newplayer.Rank = 0;
+        newplayer.Clubs.Add(activeclub);
+        parameters.Add("Element", newplayer);
+        parameters.Add("ElementType", "Player");
+        var dialog = await DialogService.ShowAsync<AddMatchMakerElementDialog>("Confirm", parameters, options);
+        DialogResult result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            newplayer.Displayname = newplayer.Name;
+            dbcontext.Players.Add(newplayer);
+            dbcontext.SaveChanges();
+            players = dbcontext.Players.Include("Clubs").ToList();
+            //StateHasChanged();
+        }
+
+    }
+    //private void OnExport()
+    //{        //    File.WriteAllText(Path.Combine(file., "WriteFile.txt"), text);
+    //    string filename = string.Format("players_{0}.json", DateTime.Now.ToShortDateString());
+    //    JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
+    //        {
+    //            WriteIndented = true,
+    //            ReferenceHandler = ReferenceHandler.Preserve
+    //        };
+
+    //    File.WriteAllText(Path.Combine("Data/Exports", filename), JsonSerializer.Serialize<List<Player>>(dbcontext.Players.ToList(), options));
+    //    File.WriteAllText(Path.Combine("Data/Exports", "teams.json"), JsonSerializer.Serialize<List<Team>>(dbcontext.Teams.ToList(), options));
+    //    File.WriteAllText(Path.Combine("Data/Exports", "matches"), JsonSerializer.Serialize<List<Match>>(dbcontext.Matches.ToList(), options));
+    //    File.WriteAllText(Path.Combine("Data/Exports", "tournaments"), JsonSerializer.Serialize<List<Tournament>>(dbcontext.Tournaments.ToList(), options));
+
+    //}
+    //private void OnImport()
+    //{        //    File.WriteAllText(Path.Combine(file., "WriteFile.txt"), text);
+    //         //string filename = string.Format("players_{0}.json", DateTime.Now.ToShortDateString());
+    //         //string jsonstring = File.ReadAllText(Path.Combine("Data/Exports", filename));
+    //         ////var obj = Player.FromJson(jsonstring);
+    //    JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
+    //        {
+    //            WriteIndented = true,
+    //            ReferenceHandler = ReferenceHandler.Preserve
+    //        };
+    //    //List<Player> players = JsonSerializer.Deserialize<List<Player>>(jsonstring, options);
+    //    //ImportManager.ImportPlayers(dbcontext, players);
+    //    string jsonstring = File.ReadAllText(Path.Combine("Data/Exports", "teams.json"));
+    //    List<Team> teams = JsonSerializer.Deserialize<List<Team>>(jsonstring, options);
+    //    ImportManager.ImportTeams(dbcontext, teams);
+    //    //List<Team> teams = JsonSerializer.Deserialize<List<Team>>(jsonstring, options);
+    //    //jsonstring = File.ReadAllText(Path.Combine("Data/Exports", "matches"));
+    //    //List<Match> matches = JsonSerializer.Deserialize<List<Match>>(jsonstring, options);
+    //    //jsonstring = File.ReadAllText(Path.Combine("Data/Exports", "tournaments"));
+    //    //List<Tournament> tournaments = JsonSerializer.Deserialize<List<Tournament>>(jsonstring, options);
+    //    //dbcontext.Add(tournaments.FirstOrDefault());
+    //    //dbcontext.SaveChanges();
+    //}
+
+    void CommittedItemChanges(Player player)
+    {
+        //bool? result = await DialogService.ShowMessageBox(
+        //      "Info",
+        //      "CommittedItemChanges",
+        //      yesText: "Delete!", cancelText: "Cancel");
+        ////state = result == null ? "Canceled" : "Deleted!";
+
+        //StateHasChanged();
+        dbcontext.SaveChanges();
+
+    }
+}

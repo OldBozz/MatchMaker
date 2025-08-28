@@ -1,0 +1,230 @@
+﻿@page "/"
+@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib.Data;
+@using Microsoft.EntityFrameworkCore;
+@using static MatchMakerLib.MatchMakerModel.Team;
+
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+<style>
+    .mudnumeric-align-center input {
+        text-align: center;
+    }
+</style>
+
+<MudContainer Class="mt-4">
+    <MudSelect T="Tournament" Label="Tornaments" MultiSelection="false" HelperText="Select a tournament"  @bind-Value="ActiveTournament">
+        @foreach (Tournament t in tournamentlist)
+        {
+            <MudSelectItem T="Tournament" Value="@t" />
+        }
+    </MudSelect>
+    @if (ActiveTournament != null)
+    {
+        <MudText Typo="Typo.h4" Class="mb-4" Align="Align.Center" GutterBottom="true">@ActiveTournament.Name</MudText>
+        <div class="d-flex flex-grow-1 gap-4">
+            <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Width="50%" Elevation="0">
+                <MudPaper Width="100%" Elevation="10">
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderContent >
+                                <MudText Typo="Typo.h5" Align="Align.Center">Current round</MudText>
+                                @*<MudPaper Width="15%" Elevation="1">*@
+                                    <MudNumericField @bind-Value="@ActiveTournament.CurrentRound" Class="mudnumeric-align-center" Min="1" Max="@ActiveTournament.TotalRounds" MaxLength="2" Style="font-size:30px;" />
+                                @*</MudPaper>*@
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudDataGrid T="Match" Items="@ActiveTournament.GetMatchesForCurrentRound()" ReadOnly="false" EditMode="DataGridEditMode.Cell"
+                                     CommittedItemChanges="@CommittedItemChanges"
+                                     Bordered="true" Dense="true" Hover="true" Striped="true" EditTrigger="DataGridEditTrigger.OnRowClick" SortMode="SortMode.None">
+                                <Columns>
+                                    <PropertyColumn Property="x => x.Court" IsEditable="false" />
+                                    <PropertyColumn Property="x => x.Team1" IsEditable="false" CellStyleFunc="@_cellStyleFuncTeam1" />
+                                    <PropertyColumn Property="x => x.Team1Points" Title="Points" />
+                                    <PropertyColumn Property="x => x.Team2" IsEditable="false" CellStyleFunc="@_cellStyleFuncTeam2" />
+                                    <PropertyColumn Property="x => x.Team2Points" Title="Points">
+                                    </PropertyColumn>
+                                </Columns>
+                            </MudDataGrid>
+                            <MudText Typo="Typo.h6" Align="Align.Left">Sitting out</MudText>
+                            <MudText Align="Align.Left">@Sittingoutlist()</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudPaper>
+                <MudPaper Width="100%" Elevation="2">
+                    <MudCard Elevation="0" Class="rounded-lg pb-4">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6" Align="Align.Center">Matches</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudDataGrid T="Match" Items="@ActiveTournament.Matches" ReadOnly="false" EditMode="DataGridEditMode.Cell"
+                                     CommittedItemChanges="@CommittedItemChanges"
+                                     Bordered="true" Dense="true" Hover="true" Striped="true" EditTrigger="DataGridEditTrigger.OnRowClick" SortMode="SortMode.None">
+                                <Columns>
+                                    <PropertyColumn Property="x => x.Court" IsEditable="false" />
+                                    <PropertyColumn Property="x => x.Team1" IsEditable="false" CellStyleFunc="@_cellStyleFuncTeam1" />
+                                    <PropertyColumn Property="x => x.Team1Points" Title="Points" />
+                                    <PropertyColumn Property="x => x.Team2" IsEditable="false" CellStyleFunc="@_cellStyleFuncTeam2" />
+                                    <PropertyColumn Property="x => x.Team2Points" Title="Points">
+                                    </PropertyColumn>
+                                </Columns>
+                            </MudDataGrid>
+                        </MudCardContent>
+                    </MudCard>
+                </MudPaper>
+            </MudPaper>
+            <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                <MudCard Elevation="25" Class="rounded-lg pb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6" Align="Align.Center">Score</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@ActiveTournament.GetPlayersStatus()" Hover="true" Breakpoint="Breakpoint.Sm">
+                            <HeaderContent>
+                                <MudTh>Player</MudTh>
+                                <MudTh>Won</MudTh>
+                                <MudTh>Lost</MudTh>
+                                <MudTh>Left</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Player">@context.Player.Displayname</MudTd>
+                                <MudTd DataLabel="Won">@context.MatchesWon</MudTd>
+                                <MudTd DataLabel="Lost">@context.MatchesLost</MudTd>
+                                <MudTd DataLabel="Left">@context.MatchesLeft</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudPaper>
+        </div>
+    }
+</MudContainer>
+@code {
+    private Tournament? ActiveTournament;
+    private List<Tournament> tournamentlist = new();
+    //private List<Match> matchlist = new();
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        tournamentlist = dbcontext.Tournaments.ToList();
+        await base.SetParametersAsync(parameters);
+    }
+    protected override void OnInitialized()
+    {
+        if (dbcontext.Tournaments.Count() > 0)
+            ActiveTournament = dbcontext.Tournaments.Include(t => t.Matches).Include(t => t.Teams).Include(t => t.Players).Include(t => t.Courts).First();
+        //matchlist = ActiveTournament.GetMatchesForCurrentRound();
+
+    }
+    //void TournamentChanged(Tournament torunamnet)
+    //{
+
+    //}
+
+    private string StatusToColor(TeamStatus status)
+    {
+        string color = "";
+        switch (status)
+        {
+            case (TeamStatus.WINNER):
+                //color = "background-color:#00FF00";
+                color = "background-color:#8df87aff";
+                break;
+            case (TeamStatus.LOSER):
+                //color = "background-color:#ff0000";
+                color = "background-color:#f87ca3ff";
+                break;
+            //case (Match.TeamStatus.LEADING):
+            //    color = "background-color:#8df87aff";
+            //    break;
+            //case (Match.TeamStatus.BEHIND):
+            //    color = "background-color:#f87ca3ff";
+            //    break;
+            default:
+                //color = "background-color:#b4b4b4ff";
+                color = "";
+                break;
+        }
+
+        return color;
+
+    }
+    string Sittingoutlist()
+    {
+        return string.Join(",", ActiveTournament.GetPlayersSittingOutInCurrentRound());
+    }
+
+    //List<BreadcrumbItem> GetSitoutPlayersAsBCItems()
+    //{
+    //    List<BreadcrumbItem> _items = new();
+    //    List<Player> playerlist = ActiveTournament.GetPlayersSittingOutInCurrentRound();
+    //    foreach(Player p in playerlist)
+    //    {
+    //        _items.Add(new BreadcrumbItem())
+    //    }
+    //}
+    private Func<Match, string> _cellStyleFuncTeam1 => x =>
+    {
+        return StatusToColor(x.Team1Status);
+    };
+    private Func<Match, string> _cellStyleFuncTeam2 => x =>
+    {
+        return StatusToColor(x.Team2Status);
+    };
+
+    //private int buteam1points = 0;
+    //private int buteam2points = 0;
+
+    //private void RowClickEvent(TableRowClickEventArgs<Match> tableRowClickEventArgs)
+    //{
+    //}
+
+    //private string SelectedRowClassFunc(Match match, int rowNumber)
+    //{
+    //    return string.Empty;
+    //}
+
+    //private void BackupItem(object element)
+    //{
+    //    buteam1points = ((Match)element).Team1Points;
+    //    buteam2points = ((Match)element).Team2Points;
+    //}
+    //private void ResetItemToOriginalValues(object element)
+    //{
+    //    ((Match)element).Team1Points = buteam1points;
+    //    ((Match)element).Team2Points = buteam2points;
+    //}
+    //private void ItemHasBeenCommitted(object element)
+    //{
+    //}
+    //void StartedEditingItem(Match match)
+    //{
+    //    buteam1points = match.Team1Points;
+    //    buteam2points = match.Team2Points;
+    //}
+    //void CanceledEditingItem(Match match)
+    //{
+    //    match.Team1Points = buteam1points;
+    //    match.Team2Points = buteam2points;
+    //}
+
+    void CommittedItemChanges(Match match)
+    {
+        //bool? result = await DialogService.ShowMessageBox(
+        //      "Info",
+        //      "CommittedItemChanges",
+        //      yesText: "Delete!", cancelText: "Cancel");
+        ////state = result == null ? "Canceled" : "Deleted!";
+        dbcontext.SaveChanges();
+        ActiveTournament.UpdateScore();
+        StateHasChanged();
+
+    }
+
+}

@@ -1,0 +1,168 @@
+﻿@page "/createtournament"
+@using MatchMakerLib.MatchMakerModel;
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using MatchMakerLib.Data;
+@using MatcMakerLiteAPP.Pages.Dialogs;
+
+
+@inject Tournament ActiveTournament
+@inject NavigationManager NavigationManager
+@inject MatchMakerDbContext dbcontext
+@inject IDialogService DialogService
+
+<MudContainer Class="mt-16" MaxWidth="MaxWidth.Medium">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">New Tournament</MudText>
+    <MudText Typo="Typo.h5" Align="Align.Left" GutterBottom="true">Settings</MudText>
+    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" ReadOnly="false">
+        @*<MudTextField T="string" @bind-Value="TournamentModel.PlayersList" Label="Players" HelperText="Comma separated list of players" Variant="Variant.Text" />*@
+        @*<MudSelect T="Player" Label="Players" MultiSelection="true" SelectAll="true" SelectAllText="Select all players" HelperText="Select 4 or more players" @bind-Value="@dbcontext.Players.ToList()" @bind-SelectedValues="@dbcontext.Players">*@
+        <MudSelect T="Club" Label="Club" MultiSelection="false" HelperText="Select club"  @bind-Value="TournamentModel.Club">
+            @foreach (Club c in dbcontext.Clubs)
+            {
+                <MudSelectItem T="Club" Value="@c" />
+            }
+        </MudSelect>
+        <MudSelect T="Mainevent" Label="Main event" MultiSelection="false" HelperText="Select main event" SelectedValues="selectedevent" @bind-Value="TournamentModel.Mainevent">
+            @foreach (Mainevent e in dbcontext.Mainevents)
+            {
+                <MudSelectItem T="Mainevent" Value="@e" />
+            }
+        </MudSelect>
+
+        <MudDatePicker Label="Date" Date="@TournamentModel.PlayDate" />
+
+        <MudSelect T="Player" Label="Players" MultiSelection="true" SelectAll="true" SelectAllText="Select all players" HelperText="Select 4 or more players" @bind-SelectedValues="selectedplayers">
+            @foreach (Player player in dbcontext.Players)
+            {
+                <MudSelectItem T="Player" Value="@player"/>
+            }
+        </MudSelect>
+        <MudSelect T="Court" Label="Courts" MultiSelection="true" SelectAll="true" SelectAllText="Select all courts" HelperText="Select 1 or more courts" @bind-SelectedValues="selectedcourts">
+            @foreach (Court c in dbcontext.Courts)
+            {
+                <MudSelectItem T="Court" Value="@c" />
+            }
+        </MudSelect>
+        <MudNumericField @bind-Value="@TournamentModel.PointsToWin" Min="1" MaxLength="2" Label="Points to win" />
+        @*<MudTextField T="string" @bind-Value="courtsvalue" Label="Courts" HelperText="Comma separated list of courts" Variant="Variant.Text" />*@
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@Generate">Generate</MudButton>
+    </MudForm>
+    <MudGrid Spacing="3" Class="mt-16">
+        <MudText Typo="Typo.h5" GutterBottom="true">Generated Matches</MudText>
+        <MudPaper Class="d-flex flex-column" Style="height:100%;width:100%" Outlined="true">
+        @*<MudTextField T="string" @bind-Value="TournamentModel.Name" Label="Name" HelperText="The name of the tournament" Variant="Variant.Text" />*@
+        <MudSpacer/>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" OnClick="@Use" Class="mx-2">Save</MudButton>
+        </MudPaper>
+        <MudPaper Class="d-flex flex-column" Style="height:100%;width:100%" Outlined="true">
+            <MudTable Items="@TournamentModel.Matches" Hover="true" Breakpoint="Breakpoint.Sm">
+                <HeaderContent>
+                    <MudTh>Round</MudTh>
+                    <MudTh>Court</MudTh>
+                    <MudTh>Team1</MudTh>
+                    <MudTh>Team2</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Round">@context.Round</MudTd>
+                    <MudTd DataLabel="Court">@context.Court</MudTd>
+                    <MudTd DataLabel="Team1">@context.Team1.Name</MudTd>
+                    <MudTd DataLabel="Team2">@context.Team2.Name</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudPaper>
+    </MudGrid>
+</MudContainer>
+
+
+
+@code {
+    bool success;
+    string[] errors = { };
+    MudForm? form;
+
+
+
+    public string HelperText { get; set; } = "";
+    //private string[] availableplayers = { "Flemming", "Henrik", "Kim", "Kyller", "Bosse", "Mads", "Nana", "Peter", "Stefano", "Tim" };
+    private IEnumerable<Player> selectedplayers { get; set; } = new List<Player>();
+    private IEnumerable<Court> selectedcourts { get; set; } = new List<Court>();
+    private IEnumerable<Mainevent> selectedevent = new List<Mainevent>();
+    //private IEnumerable<string> selectedplayers { get; set; } = new HashSet<string>() { "" };
+    private string playersvalue { get; set; } = "Select Players";
+    private string courtsvalue { get; set; } = "1,2";
+    private Tournament TournamentModel = new();
+    //private Tournament TournamentModelTest = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        dbcontext.Add(TournamentModel);
+        TournamentModel.PlayDate = DateTime.Now;
+        //TournamentModel.Mainevent = dbcontext.Mainevents.First();
+        //TournamentModel.Courts.AddRange(dbcontext.Courts);
+        //TournamentModel.Players.AddRange(dbcontext.Players);
+        //dbcontext.SaveChanges();
+        (selectedevent as List<Mainevent>).Add(dbcontext.Mainevents.First());
+        //(selectedcourts as List<Court>).AddRange(TournamentModel.Courts);
+        //(selectedplayers as List<Player>).AddRange(TournamentModel.Players);
+
+
+    }
+
+    private async Task<DialogResult> OpenSaveDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters();
+        parameters.Add("Tournament", TournamentModel);
+
+        var dialog = await DialogService.ShowAsync<SaveTournamentDialog>("Confirm", parameters,options);
+        return await dialog.Result;
+    }
+
+    private void Generate()
+    {
+        TournamentModel.Courts.Clear();
+        TournamentModel.Courts.AddRange(selectedcourts);
+        TournamentModel.Players.Clear();
+        TournamentModel.Players.AddRange(selectedplayers);
+        TournamentModel.GenerateNew();
+
+    }
+    private async void Use()
+    {
+        //    dbcontext.Add(TournamentModel);
+        //await dbcontext.SaveChangesAsync();
+        //NavigationManager.NavigateTo("/");
+
+        DialogResult result = await OpenSaveDialog();
+        if (!result.Canceled)
+        {
+
+            //TournamentModelTest.PlayDate = TournamentModel.PlayDate;
+            //TournamentModelTest.Mainevent= TournamentModel.Mainevent;
+            //TournamentModelTest.Club = TournamentModel.Club;
+            //TournamentModelTest.Name = TournamentModel.Name;
+            //await dbcontext.SaveChangesAsync();
+            //TournamentModelTest.Players.AddRange(TournamentModel.Players);
+            //await dbcontext.SaveChangesAsync();
+            //TournamentModelTest.Courts.AddRange(TournamentModel.Courts);
+            //await dbcontext.SaveChangesAsync();
+            //TournamentModelTest.Teams.AddRange(TournamentModel.Teams);
+            //await dbcontext.SaveChangesAsync();
+            ////TournamentModelTest.Matches.Add(new MatchMakerLib.MatchMakerModel.Match());
+            ////await dbcontext.SaveChangesAsync();
+            //TournamentModelTest.Matches.AddRange(TournamentModel.Matches);
+            //dbcontext.Add(TournamentModelTest);
+            await dbcontext.SaveChangesAsync();
+            NavigationManager.NavigateTo("/");
+        }
+
+
+    }
+
+}
+
+
+
+}

@@ -1,0 +1,40 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerLib.Data;
+@inject MatchMakerDbContext dbcontext
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.DeleteForever" Class="mr-3 mb-n1" />
+            New player
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="@Player.Name" Label="Name" />
+        <MudTextField @bind-Value="@Player.Displayname" Label="Display name" />
+        <MudDatePicker Label="Date of Birth" @bind-Date="@Player.Dob" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="AddPlayer">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    //[Parameter] public Player Player { get; set; } = new Player();
+    Player Player { get; set; } = new Player();
+
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void AddPlayer()
+    {
+        dbcontext.Add(Player);
+        dbcontext.SaveChanges();
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

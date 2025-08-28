@@ -1,0 +1,60 @@
+﻿@using MatchMakerLib.MatchMakerModel;
+@using MatchMakerPro.Data;
+@inject MatchMakerDbContext dbcontext
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Save" Class="mr-3 mb-n1" />
+            Export
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudFileUpload T="IBrowserFile" FilesChanged="FileSelected">
+            <ButtonTemplate>
+                <MudFab HtmlTag="label"
+                        Color="Color.Secondary"
+                        Icon="@Icons.Material.Filled.Image"
+                        Label="elect file"
+                        for="@context" />
+            </ButtonTemplate>
+        </MudFileUpload>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="SaveTournament">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public string filename{ get; set; }
+    [Parameter] public string filecontent { get; set; }
+
+    //protected override void OnInitialized()
+    //{
+    //    base.OnInitialized();
+    //    Tournament.Name = String.Format("{0} {1} {2}", Tournament.Club.Name, Tournament.Mainevent.Name, Tournament.PlayDate.ToString("d MMM yyyy"));
+
+    //}
+    private void FileSelected(IBrowserFile file)
+    {
+        //<MudAlert Severity = "Severity.Normal" > @file.Name </ MudAlert >
+        //{
+        //    File.WriteAllText(Path.Combine(file., "WriteFile.txt"), text);
+        //    //TODO upload the files to the server
+        //}
+
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void SaveTournament()
+    {
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}
