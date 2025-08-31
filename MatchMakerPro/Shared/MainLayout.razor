@@ -9,8 +9,9 @@
 *@
 <MudThemeProvider Theme="_themeManager.Theme" />
 @*<MudAppBar Elevation="_themeManager.AppBarElevation"></MudAppBar>*@
-<MudDialogProvider DisableBackdropClick="true" />
+<MudDialogProvider BackdropClick="false" />
 <MudSnackbarProvider />
+<MudPopoverProvider />
 
 <MudLayout>
 
@@ -24,7 +25,7 @@
 *@        @*<MudSpacer />*@
         <MudMenu Color="MudBlazor.Color.Inherit" Dense="true" ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
             <ActivatorContent>
-                <MudChip Icon="@Icons.Material.Filled.AddChart" Color="MudBlazor.Color.Primary">Tournament</MudChip>
+                <MudChip T="string" Icon="@Icons.Material.Filled.AddChart" Color="MudBlazor.Color.Primary">Tournament</MudChip>
             </ActivatorContent>
             <ChildContent>
                 <MudMenuItem Href="/">Dashboard</MudMenuItem>
@@ -33,7 +34,7 @@
         </MudMenu>
         <MudMenu Color="MudBlazor.Color.Inherit" Dense="true" ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
             <ActivatorContent>
-                <MudChip Icon="@Icons.Material.Filled.AttachMoney" Color="MudBlazor.Color.Primary">Betting</MudChip>
+                <MudChip T="string" Icon="@Icons.Material.Filled.AttachMoney" Color="MudBlazor.Color.Primary">Betting</MudChip>
             </ActivatorContent>
             <ChildContent>
                 <MudMenuItem Href="/Betplace">Place bet</MudMenuItem>
@@ -42,7 +43,7 @@
         </MudMenu>
         <MudMenu Icon="@Icons.Material.Outlined.AddCard" Dense="true" Color="MudBlazor.Color.Inherit" ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
             <ActivatorContent>
-                <MudChip Icon="@Icons.Material.Filled.AddCard" Color="MudBlazor.Color.Primary">Data</MudChip>
+                <MudChip T="string" Icon="@Icons.Material.Filled.AddCard" Color="MudBlazor.Color.Primary">Data</MudChip>
             </ActivatorContent>
             <ChildContent>
                 <MudMenuItem Href="/Ranking">Rankings</MudMenuItem>
@@ -58,7 +59,7 @@
         </MudMenu>
         <MudMenu Icon="@Icons.Material.Sharp.AutoGraph" Dense="true" Color="MudBlazor.Color.Inherit" ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
             <ActivatorContent>
-                <MudChip Icon="@Icons.Material.Sharp.AutoGraph" Color="MudBlazor.Color.Primary">Statistics</MudChip>
+                <MudChip T="string" Icon="@Icons.Material.Sharp.AutoGraph" Color="MudBlazor.Color.Primary">Statistics</MudChip>
             </ActivatorContent>
             <ChildContent>
                 <MudMenuItem Href="/RankingChart">Ranking</MudMenuItem>
@@ -92,7 +93,7 @@
 @code {
     MudTheme MatchMakerTheme = new MudTheme()
         {
-            Palette = new PaletteLight()
+            PaletteLight = new PaletteLight()
             {
                 Primary = Colors.Blue.Default,
                 Secondary = Colors.Green.Accent4,
@@ -124,7 +125,7 @@
     {
         if (dbcontext.Clubs.Count() > 0)
             activeclub = dbcontext.Clubs.First();
-        _themeManager.Theme.Palette = new PaletteLight()
+        _themeManager.Theme.PaletteLight = new PaletteLight()
             {
                 Primary = Colors.Blue.Default,
                 Secondary = Colors.Green.Accent4,

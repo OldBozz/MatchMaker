@@ -21,9 +21,9 @@
                         <MudSelectItem T="Player" Value="@player" />
                     }
                 </MudSelect>
-                <MudRadioGroup @bind-SelectedOption="against">
-                    <MudRadio Option="true" Color="MudBlazor.Color.Primary" Dense="true">Against</MudRadio>
-                    <MudRadio Option="false" Color="MudBlazor.Color.Secondary" Dense="false">With</MudRadio>
+                <MudRadioGroup T="string" @bind-SelectedOption="against">
+                    <MudRadio T="string" Option="true" Color="MudBlazor.Color.Primary" Dense="true">Against</MudRadio>
+                    <MudRadio T="string" Option="false" Color="MudBlazor.Color.Secondary" Dense="false">With</MudRadio>
                 </MudRadioGroup>
             </CardHeaderContent>
         </MudCardHeader>

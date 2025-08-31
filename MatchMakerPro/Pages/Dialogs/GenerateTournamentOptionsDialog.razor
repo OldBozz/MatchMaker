@@ -26,7 +26,7 @@
             <MudRadio T="TournamentGenerator.RANKINGUSE" Color="MudBlazor.Color.Secondary" Size="MudBlazor.Size.Medium" Option="@(TournamentGenerator.RANKINGUSE.UNBALANCED)">Use ranking to generate UNEVEN matches</MudRadio>
         </MudRadioGroup>
         <MudText Typo="Typo.h6" Class="mr-6" Align="MudBlazor.Align.Center">Shuffle</MudText>
-        <MudCheckBox @bind-Checked="@shuffle" Color="MudBlazor.Color.Secondary" Label="Use players in random order" CheckedIcon="@Icons.Material.Filled.ShuffleOn" UncheckedIcon="@Icons.Material.Filled.Shuffle"></MudCheckBox>
+        <MudCheckBox T="string" @bind-Checked="@shuffle" Color="MudBlazor.Color.Secondary" Label="Use players in random order" CheckedIcon="@Icons.Material.Filled.ShuffleOn" UncheckedIcon="@Icons.Material.Filled.Shuffle"></MudCheckBox>
     </DialogContent>
     <DialogActions>
         <MudButton Color="MudBlazor.Color.Error" OnClick="OnCancel">Cancel</MudButton>
@@ -35,7 +35,7 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance? MudDialog { get; set; }
 
     [Parameter] public Tournament tournament { get; set; }
 

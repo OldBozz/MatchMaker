@@ -1,0 +1,506 @@
+# Blazor C# App Ubuntu Deployment Guide
+
+This guide covers deploying both Blazor Server and Blazor WebAssembly applications to Ubuntu Linux.
+
+## Prerequisites
+
+- Ubuntu server (18.04+) with sudo privileges
+- SSH access to the server
+- Your Blazor application source code
+
+## Step 1: Install .NET Runtime and SDK
+
+```bash
+# Update system packages
+sudo apt update && sudo apt upgrade -y
+
+# Install dependencies
+sudo apt install -y wget apt-transport-https software-properties-common
+
+# Add Microsoft package repository
+wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+
+# Update package list
+sudo apt update
+
+# Install .NET SDK and Runtime
+sudo apt install -y dotnet-sdk-8.0 dotnet-runtime-8.0 aspnetcore-runtime-8.0
+
+# Verify installation
+dotnet --version
+dotnet --list-runtimes
+```
+
+## Step 2: Prepare Your Application
+
+### Option A: Clone from Repository
+```bash
+# Clone your repository
+git clone https://github.com/your-username/your-blazor-app.git
+cd your-blazor-app
+```
+
+### Option B: Upload Files via SCP
+```bash
+# From your local machine
+scp -r /path/to/your/blazor-app user@server-ip:/home/user/
+```
+
+## Step 3: Build and Publish the Application
+
+Navigate to your application directory and publish:
+
+```bash
+cd your-blazor-app
+
+# Clean previous builds
+dotnet clean
+
+# Restore packages
+dotnet restore
+
+# Build the application
+dotnet build --configuration Release
+
+# Publish the application
+dotnet publish --configuration Release --output /var/www/blazor-app
+
+# Set proper permissions
+sudo chown -R www-data:www-data /var/www/blazor-app
+sudo chmod -R 755 /var/www/blazor-app
+```
+
+## Step 4A: Blazor Server App Deployment
+
+### Create Systemd Service
+
+```bash
+# Create service file
+sudo nano /etc/systemd/system/blazor-app.service
+```
+
+Add the following content:
+
+```ini
+[Unit]
+Description=Blazor Server App
+After=network.target
+
+[Service]
+Type=notify
+WorkingDirectory=/var/www/blazor-app
+ExecStart=/usr/bin/dotnet /var/www/blazor-app/YourAppName.dll
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=blazor-app
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://localhost:5000
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+# Enable and start the service
+sudo systemctl daemon-reload
+sudo systemctl enable blazor-app
+sudo systemctl start blazor-app
+
+# Check service status
+sudo systemctl status blazor-app
+```
+
+### Configure Nginx as Reverse Proxy
+
+```bash
+# Install Nginx
+sudo apt install -y nginx
+
+# Create Nginx configuration
+sudo nano /etc/nginx/sites-available/blazor-app
+```
+
+Add the following configuration:
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com www.your-domain.com;  # Replace with your domain
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_buffering off;
+        proxy_read_timeout 100s;
+        proxy_connect_timeout 100s;
+    }
+}
+
+map $http_upgrade $connection_upgrade {
+    default Upgrade;
+    '' close;
+}
+```
+
+```bash
+# Enable the site
+sudo ln -s /etc/nginx/sites-available/blazor-app /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+## Step 4B: Blazor WebAssembly App Deployment
+
+For Blazor WebAssembly, you only need to serve static files:
+
+### Configure Nginx for Static Files
+
+```bash
+# Install Nginx
+sudo apt install -y nginx
+
+# Create Nginx configuration
+sudo nano /etc/nginx/sites-available/blazor-wasm
+```
+
+Add the following configuration:
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com www.your-domain.com;  # Replace with your domain
+    root /var/www/blazor-app/wwwroot;
+    index index.html;
+
+    # Enable gzip compression
+    gzip on;
+    gzip_types
+        text/plain
+        text/css
+        text/js
+        text/xml
+        text/javascript
+        application/javascript
+        application/xml+rss
+        application/json
+        application/wasm;
+
+    # Handle Blazor WebAssembly routing
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Set proper MIME types for WebAssembly
+    location ~* \.wasm$ {
+        add_header Content-Type application/wasm;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Cache static assets
+    location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Security headers
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+}
+```
+
+```bash
+# Enable the site
+sudo ln -s /etc/nginx/sites-available/blazor-wasm /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+## Step 5: Database Configuration (if applicable)
+
+### SQL Server on Linux
+```bash
+# Import Microsoft GPG key
+curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+
+# Add SQL Server repository
+sudo add-apt-repository "$(curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/mssql-server-2022.list)"
+
+# Install SQL Server
+sudo apt update
+sudo apt install -y mssql-server
+
+# Configure SQL Server
+sudo /opt/mssql/bin/mssql-conf setup
+```
+
+### PostgreSQL
+```bash
+sudo apt install -y postgresql postgresql-contrib
+sudo -u postgres psql
+-- Create database and user
+CREATE DATABASE blazorapp;
+CREATE USER blazoruser WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE blazorapp TO blazoruser;
+\q
+```
+
+### Update Connection String
+```bash
+# Edit appsettings.json in your published app
+sudo nano /var/www/blazor-app/appsettings.json
+```
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=blazorapp;User Id=blazoruser;Password=your_password;"
+  }
+}
+```
+
+## Step 6: Environment Configuration
+
+### Create appsettings.Production.json
+```bash
+sudo nano /var/www/blazor-app/appsettings.Production.json
+```
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "your_production_connection_string"
+  }
+}
+```
+
+## Step 7: SSL/HTTPS Configuration
+
+```bash
+# Install Certbot
+sudo apt install -y certbot python3-certbot-nginx
+
+# Get SSL certificate
+sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+
+# Test certificate renewal
+sudo certbot renew --dry-run
+```
+
+## Step 8: Firewall Configuration
+
+```bash
+# Configure UFW firewall
+sudo ufw allow 22      # SSH
+sudo ufw allow 80      # HTTP
+sudo ufw allow 443     # HTTPS
+sudo ufw enable
+
+# Check firewall status
+sudo ufw status
+```
+
+## Step 9: Monitoring and Logging
+
+### View Application Logs (Blazor Server)
+```bash
+# View systemd logs
+sudo journalctl -u blazor-app -f
+
+# View detailed logs
+sudo journalctl -u blazor-app --since "1 hour ago"
+```
+
+### View Nginx Logs
+```bash
+# Access logs
+sudo tail -f /var/log/nginx/access.log
+
+# Error logs
+sudo tail -f /var/log/nginx/error.log
+```
+
+### Application Performance Monitoring
+Add to your Blazor app's `Program.cs`:
+
+```csharp
+// For logging
+builder.Logging.AddSystemdConsole();
+
+// For health checks
+builder.Services.AddHealthChecks();
+
+var app = builder.Build();
+
+// Add health check endpoint
+app.MapHealthChecks("/health");
+```
+
+## Step 10: Deployment Automation
+
+### Create Deployment Script
+```bash
+# Create deployment script
+nano deploy.sh
+```
+
+```bash
+#!/bin/bash
+set -e
+
+APP_NAME="blazor-app"
+PUBLISH_DIR="/var/www/$APP_NAME"
+SERVICE_NAME="$APP_NAME"
+
+echo "Starting deployment..."
+
+# Stop the service
+sudo systemctl stop $SERVICE_NAME
+
+# Backup current version
+sudo cp -r $PUBLISH_DIR ${PUBLISH_DIR}_backup_$(date +%Y%m%d_%H%M%S)
+
+# Pull latest code
+git pull origin main
+
+# Build and publish
+dotnet clean
+dotnet restore
+dotnet publish --configuration Release --output $PUBLISH_DIR --force
+
+# Set permissions
+sudo chown -R www-data:www-data $PUBLISH_DIR
+sudo chmod -R 755 $PUBLISH_DIR
+
+# Start the service
+sudo systemctl start $SERVICE_NAME
+
+# Check service status
+sudo systemctl status $SERVICE_NAME
+
+echo "Deployment completed successfully!"
+```
+
+```bash
+# Make script executable
+chmod +x deploy.sh
+```
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+1. **Service won't start**
+   ```bash
+   sudo systemctl status blazor-app
+   sudo journalctl -u blazor-app --no-pager
+   ```
+
+2. **Port binding issues**
+   ```bash
+   sudo netstat -tulpn | grep :5000
+   # Change port in service file if needed
+   ```
+
+3. **Permission errors**
+   ```bash
+   sudo chown -R www-data:www-data /var/www/blazor-app
+   sudo chmod -R 755 /var/www/blazor-app
+   ```
+
+4. **Database connection issues**
+   ```bash
+   # Test database connection
+   dotnet ef database update --project YourProject.csproj
+   ```
+
+5. **SignalR connection issues (Blazor Server)**
+   - Ensure WebSocket support in Nginx config
+   - Check firewall settings
+   - Verify sticky sessions if using load balancer
+
+### Performance Optimization
+
+1. **Enable Response Compression**
+   ```csharp
+   builder.Services.AddResponseCompression(opts =>
+   {
+       opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+           new[] { "application/octet-stream" });
+   });
+   ```
+
+2. **Configure Caching**
+   ```csharp
+   builder.Services.AddResponseCaching();
+   ```
+
+3. **Optimize Nginx**
+   - Enable gzip compression
+   - Set proper cache headers
+   - Configure connection pooling
+
+## Security Considerations
+
+1. **Update packages regularly**
+   ```bash
+   sudo apt update && sudo apt upgrade
+   dotnet list package --outdated
+   ```
+
+2. **Use environment variables for secrets**
+   ```bash
+   sudo nano /etc/environment
+   # Add sensitive configuration
+   ```
+
+3. **Configure HTTPS redirects**
+   ```csharp
+   app.UseHttpsRedirection();
+   app.UseHsts();
+   ```
+
+4. **Implement proper authentication and authorization**
+
+## Backup and Recovery
+
+```bash
+# Create backup script
+sudo nano /usr/local/bin/backup-blazor-app.sh
+```
+
+```bash
+#!/bin/bash
+BACKUP_DIR="/backups/blazor-app"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+mkdir -p $BACKUP_DIR
+
+# Backup application files
+tar -czf $BACKUP_DIR/app_$DATE.tar.gz /var/www/blazor-app
+
+# Backup database (if using PostgreSQL)
+sudo -u postgres pg_dump blazorapp > $BACKUP_DIR/db_$DATE.sql
+
+# Keep only last 7 days of backups
+find $BACKUP_DIR -type f -mtime +7 -delete
+```
+
+This comprehensive guide should help you successfully deploy your Blazor C# application to Ubuntu. Choose the appropriate sections based on whether you're deploying Blazor Server or Blazor WebAssembly.
