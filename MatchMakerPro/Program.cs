@@ -30,6 +30,8 @@ var builder = WebApplication.CreateBuilder(args);
 //var mysqlIdentityConnectionString = builder.Configuration.GetConnectionString("MySQLIdentityConnection") ?? throw new InvalidOperationException("Connection string 'MySQLIdentityConnection' not found.");
 var mysqlAzureMatchmakerConnectionString = builder.Configuration.GetConnectionString("MySQLAzureMatchmakerConnection") ?? throw new InvalidOperationException("Connection string 'MySQLAzureMatchmakerConnection' not found.");
 var mysqlSimplyMatchmakerConnectionString = builder.Configuration.GetConnectionString("MySQLSimplyMatchmakerConnection") ?? throw new InvalidOperationException("Connection string 'MySQLSimplyMatchmakerConnection' not found.");
+var mysqlOneMatchmakerConnectionString = builder.Configuration.GetConnectionString("MySQLOneMatchmakerConnection") ?? throw new InvalidOperationException("Connection string 'MySQLOneMatchmakerConnection' not found.");
+var mysqlLocalMatchmakerConnectionString = builder.Configuration.GetConnectionString("MySQLLocalMatchmakerConnection") ?? throw new InvalidOperationException("Connection string 'MySQLOneMatchmakerConnection' not found.");
 
 //builder.Services.AddDbContext<MatchMakerIdentityDbContext>(options =>
 //    options.UseMySQL(mysqlIdentityConnectionString));
@@ -43,7 +45,8 @@ builder.Services.AddServerSideBlazor();
 
 
 //builder.Services.AddDbContext<MatchMakerDbContext>(opt => opt.UseMySQL(mysqlSimplyMatchmakerConnectionString));
-builder.Services.AddDbContext<MatchMakerDbContext>(opt => opt.UseMySQL(mysqlAzureMatchmakerConnectionString));
+//builder.Services.AddDbContext<MatchMakerDbContext>(opt => opt.UseMySQL(mysqlAzureMatchmakerConnectionString));
+builder.Services.AddDbContext<MatchMakerDbContext>(opt => opt.UseMySQL(mysqlOneMatchmakerConnectionString));
 
 builder.Services.AddScoped<MatchMakerDbContext>();
 builder.Services.AddSingleton<Club>();
