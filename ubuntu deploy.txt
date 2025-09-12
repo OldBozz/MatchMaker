@@ -1,0 +1,16 @@
+# Update package index
+sudo apt update
+
+# Install prerequisites
+sudo apt install -y wget apt-transport-https
+
+# Add Microsoft package signing key and repository
+wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+
+# Install .NET SDK (latest LTS)
+sudo apt update
+sudo apt install -y dotnet-sdk-8.0
+
+
+
