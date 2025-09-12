@@ -33,10 +33,10 @@ var mysqlSimplyMatchmakerConnectionString = builder.Configuration.GetConnectionS
 var mysqlOneMatchmakerConnectionString = builder.Configuration.GetConnectionString("MySQLOneMatchmakerConnection") ?? throw new InvalidOperationException("Connection string 'MySQLOneMatchmakerConnection' not found.");
 var mysqlLocalMatchmakerConnectionString = builder.Configuration.GetConnectionString("MySQLLocalMatchmakerConnection") ?? throw new InvalidOperationException("Connection string 'MySQLOneMatchmakerConnection' not found.");
 */
-var mysqlMatchmakerConnectionString = builder.Configuration.GetConnectionString("MySQLMatchmakerConnection") ?? throw new InvalidOperationException("Connection string 'MySQLMatchmakerConnection' not found.");
-//builder.Services.AddDbContext<MatchMakerIdentityDbContext>(options =>
+/*var mysqlMatchmakerConnectionString = builder.Configuration.GetConnectionString("MySQLMatchmakerConnection") ?? throw new InvalidOperationException("Connection string 'MySQLMatchmakerConnection' not found.");
+*///builder.Services.AddDbContext<MatchMakerIdentityDbContext>(options =>
 //    options.UseMySQL(mysqlIdentityConnectionString));
-
+var mysqlMatchmakerConnectionString = "Server =\"localhost\"; Database= matchmaker;User ID=augaadmin; Password=Skimpole1;";
 //builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 //    .AddEntityFrameworkStores<MatchMakerIdentityDbContext>();
