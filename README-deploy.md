@@ -60,7 +60,21 @@ This checklist lets you deploy **matchmakerpro** (ASP.NET Core) on Ubuntu as a *
 - [ ] Rsync publish folder
   ```bash
   # On your machine:
-  rsync -avz --delete publish/ user@SERVER:/var/www/matchmakerpro/
+  rsync -avz --delete publish/ user@81.88.26.51/var/www/matchmakerpro/
+
+#Local published  
+  # make sure target exists
+sudo mkdir -p /var/www/matchmakerpro
+
+# sync the contents of publish/ into the target
+sudo rsync -azP --delete publish/ /var/www/matchmakerpro/
+
+# (optional) set ownership so your web server can read/serve it
+sudo chown -R www-data:www-data /var/www/matchmakerpro
+# (optional) tighten perms
+sudo find /var/www/matchmakerpro -type d -exec chmod 755 {} \;
+sudo find /var/www/matchmakerpro -type f -exec chmod 644 {} \;
+
   ```
 - [ ] Fix ownership (if needed)
   ```bash
@@ -86,13 +100,16 @@ This checklist lets you deploy **matchmakerpro** (ASP.NET Core) on Ubuntu as a *
   User=matchmakerpro
   Group=matchmakerpro
   WorkingDirectory=/var/www/matchmakerpro
-  ExecStart=/usr/bin/dotnet /var/www/matchmakerpro/matchmakerpro.dll
+  ExecStart=/usr/bin/dotnet /var/www/matchmakerpro/MatchmakerPro.dll
 
   Environment=ASPNETCORE_URLS=http://127.0.0.1:5000
   Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
-  # Environment=ASPNETCORE_ENVIRONMENT=Production
+  Environment=ASPNETCORE_ENVIRONMENT=Production
   # EnvironmentFile=/etc/matchmakerpro.env
-
+  Environment=DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+  Environment=DOTNET_CLI_TELEMETRY_OPTOUT=1
+  Environment=HOME=/var/www/matchmakerpro
+  
   Restart=always
   RestartSec=5
   SyslogIdentifier=matchmakerpro
